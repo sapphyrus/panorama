@@ -1,9 +1,9 @@
-[08.05.2019 04:51:41] > 7za.exe x C:/sapphyrusxyz/csgo_updates/client/csgo/panorama/code.pbin -oc:unpacked * -r
+> 7za.exe x C:/sapphyrusxyz/csgo_updates/client/csgo/panorama/code.pbin -oc:unpacked * -r
 
 7-Zip (a) 19.00 (x64) : Copyright (c) 1999-2018 Igor Pavlov : 2019-02-21
 
 Scanning the drive for archives:
-1 file, 2745919 bytes (2682 KiB)
+1 file, 2887037 bytes (2820 KiB)
 
 Extracting archive: C:\sapphyrusxyz\csgo_updates\client\csgo\panorama\code.pbin
 
@@ -16,7 +16,7 @@ Type = zip
 WARNINGS:
 There are data after the end of archive
 Offset = 516
-Physical Size = 2745402
+Physical Size = 2886520
 Tail Size = 1
 Comment = XZP1 0
 
@@ -25,6 +25,6 @@ Everything is Ok
 Archives with Warnings: 1
 
 Warnings: 1
-Files: 486
-Size:       2668508
-Compressed: 2745919
+Files: 510
+Size:       2805490
+Compressed: 2887037
