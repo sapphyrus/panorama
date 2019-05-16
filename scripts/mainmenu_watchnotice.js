@@ -24,7 +24,7 @@ var MainmenuWatchNotice = (function () {
 
 		_m_cP.SetHasClass( "hidden", true );
 
-		TournamentsAPI.RequestFavorites( false                              );
+		TournamentsAPI.RequestFavorites();
 	};
 
 	function _StartDateCompareFunction ( a, b )
@@ -68,11 +68,8 @@ var MainmenuWatchNotice = (function () {
 		_PopulateLister();	
 	}
 
-	function _FavoritesReceived ( bAllRequested, jsonFavorites, jsonFeatured )
+	function _FavoritesReceived ( jsonFavorites, jsonFeatured )
 	{
-		if ( bAllRequested )
-			return;
-		
 		if ( ( jsonFavorites.length > 0 ) || ( jsonFeatured.length > 0 ) )
 		{
 			                                                  
@@ -147,7 +144,13 @@ var MainmenuWatchNotice = (function () {
 			{
 				if ( _m_arrEvents[ jdx ][ 'event_id' ] == _m_arrFavorites[ idx ] )
 				{
-					retArr.push( _m_arrEvents[ jdx ] );
+					var oEvent = _m_arrEvents[ jdx ];
+
+					if ( 'live_matches' in oEvent &&
+						Object.keys( oEvent[ 'live_matches' ] ).length > 0 )
+					{
+						retArr.push( oEvent );
+					}
 				}
 			}
 		}

@@ -3,7 +3,7 @@
 7-Zip (a) 19.00 (x64) : Copyright (c) 1999-2018 Igor Pavlov : 2019-02-21
 
 Scanning the drive for archives:
-1 file, 2887037 bytes (2820 KiB)
+1 file, 2889681 bytes (2822 KiB)
 
 Extracting archive: C:\sapphyrusxyz\csgo_updates\client\csgo\panorama\code.pbin
 
@@ -16,7 +16,7 @@ Type = zip
 WARNINGS:
 There are data after the end of archive
 Offset = 516
-Physical Size = 2886520
+Physical Size = 2889164
 Tail Size = 1
 Comment = XZP1 0
 
@@ -26,5 +26,5 @@ Archives with Warnings: 1
 
 Warnings: 1
 Files: 510
-Size:       2805490
-Compressed: 2887037
+Size:       2808134
+Compressed: 2889681
