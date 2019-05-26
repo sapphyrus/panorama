@@ -319,14 +319,10 @@ var PlayMenu = ( function()
 			_UpdateMapGroupButtons( isEnabled, isSearching, isHost );
 
 			                                                   
+			_CancelRotatingMapGroupSchedule();
 			if ( settings.game.mode === "survival" )
 			{
-				_CancelRotatingMapGroupSchedule();
 				_GetRotatingMapGroupStatus( m_gameModeSetting, settings.game.mapgroupname );
-			}
-			else
-			{
-				_CancelRotatingMapGroupSchedule();
 			}
 
 			_SelectMapButtonsFromSettings( settings );
@@ -670,6 +666,7 @@ var PlayMenu = ( function()
 
 	var _GetRotatingMapGroupStatus = function( gameMode, mapgroupname )
 	{
+		m_timerMapGroupHandler = null;
 		var strSchedule = CompetitiveMatchAPI.GetRotatingOfficialMapGroupCurrentState( gameMode, mapgroupname );
 		var elTimer = m_mapSelectionButtonContainers[ m_activeMapGroupSelectionPanelID ].FindChildInLayoutFile( 'PlayMenuMapRotationTimer' );
 
@@ -723,15 +720,21 @@ var PlayMenu = ( function()
 
 	var _StartRotatingMapGroupTimer = function()
 	{
-		if ( m_gameModeSetting && m_gameModeSetting === "survival" )
+		_CancelRotatingMapGroupSchedule();
+		
+		if ( m_gameModeSetting && m_gameModeSetting === "survival"
+			&& m_mapSelectionButtonContainers && m_mapSelectionButtonContainers[ m_activeMapGroupSelectionPanelID ]
+			&& m_mapSelectionButtonContainers[ m_activeMapGroupSelectionPanelID ].Children() )
 		{
 			var btnSelectedMapGroup = m_mapSelectionButtonContainers[ m_activeMapGroupSelectionPanelID ].Children().filter( entry => entry.GetAttributeString( 'mapname', '' ) !== '' );
 
-			var mapSelectedGroupName = btnSelectedMapGroup[0].GetAttributeString( 'mapname', '' );
-			if ( mapSelectedGroupName )
-			{
-				_CancelRotatingMapGroupSchedule();
-				_GetRotatingMapGroupStatus( m_gameModeSetting, mapSelectedGroupName );
+			if ( btnSelectedMapGroup[ 0 ] )
+			{ 
+				var mapSelectedGroupName = btnSelectedMapGroup[ 0 ].GetAttributeString( 'mapname', '' );
+				if ( mapSelectedGroupName )
+				{
+					_GetRotatingMapGroupStatus( m_gameModeSetting, mapSelectedGroupName );
+				}
 			}
 		}
 	};
