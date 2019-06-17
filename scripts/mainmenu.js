@@ -593,11 +593,8 @@ var MainMenu = ( function() {
 		                                     
 		_AddFeaturedPanel();
 
-		                                                                           
-		if ( !_m_bPerfectWorld )
-		{
-			_AddWatchNoticePanel();
-		}
+		_AddWatchNoticePanel();
+		
 	};
 
 	var _AddStream = function()
@@ -1396,18 +1393,18 @@ var MainMenu = ( function() {
 
 	var _ShowHideAlertForNewEventForWatchBtn = function()
 	{
-		var btn = $.GetContextPanel().FindChildInLayoutFile( 'MainMenuNavBarWatch' );
-		var alert = btn.FindChildInLayoutFile( 'MainMenuWatchAlert' );
-
-		var showAlert = GameInterfaceAPI.GetSettingString( 'ui_new_events_alert_seen' );
-		var shouldHide = showAlert === '0' ? false : true;
-
-		alert.SetHasClass( 'hidden', shouldHide );
+		                                                                               
+		                                                                
+		  
+		                                                                                  
+		                                                    
+		  
+		                                            
 	};
 
 	var _WatchBtnPressedUpdateAlert = function()
 	{
-		GameInterfaceAPI.SetSettingString( 'ui_new_events_alert_seen', '1' );
+		                                                                        
 		_ShowHideAlertForNewEventForWatchBtn();
 	};
 
