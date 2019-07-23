@@ -6,7 +6,7 @@
 .news-panel-streamfeed
 {
 	width: 100%;
-	height: fill-parent-flow( .50 );
+	height: fill-parent-flow( .60 );
 	background-color: blurBackgroundColor;
 	margin-bottom: 16px;
 	flow-children: down;
@@ -19,6 +19,7 @@
 .news-panel-streamfeed.hidden
 {
 	height: fill-parent-flow( 0 );
+	margin-bottom: 0px;
 
 	transition-property: height;
 	transition-duration: .25s;
