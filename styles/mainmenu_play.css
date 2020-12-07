@@ -25,11 +25,70 @@
 	transition-timing-function: ease-in-out;
 }
 
+.map-selection-list-coop
+{
+	width: 80%; 
+	height: fit-children;
+	flow-children: down;
+	opacity: 1;
+	visibility: visible;
+	horizontal-align: center;
+
+	transition-property:  opacity, transform;
+	transition-duration: .25s;
+	transition-timing-function: ease-in-out;
+}
+
+.coop-mission-controls
+{
+	flow-children: right;
+	width: 100%;
+}
+
+.coop-mission__control
+{
+	width: fit-children;
+	height: 48px;
+	padding-left: 16px;
+	padding-right: 20px;
+	horizontal-align: left;
+}
+
+.coop-mission__desc
+{
+	horizontal-align: center;
+	vertical-align: center;
+	width: 370px;
+	z-index: 1;
+	color: white;
+	text-align: center;
+	margin-top: 48px;
+}
+
+.coop-mission__icon-container
+{
+	horizontal-align: center;
+	vertical-align: bottom;
+	width: fit-children;
+	padding: 12px 12px 12px 12px;
+	z-index: 1;
+	flow-children: right;
+}
+
+.coop-mission__icon
+{
+	horizontal-align: center;
+	vertical-align: center;
+	width: 64px;
+	height: 64px;
+	z-index: 1;
+	margin: 0px 12px 0px 12px;
+}
 
 .map-selection-list-all
 {
 	width: 100%;
-	height: fill-parent-flow ( 0.5 ); 
+	height: fill-parent-flow ( 0.5 );
 	flow-children: none;
 	horizontal-align: center;
 	overflow: clip squish;
@@ -64,6 +123,12 @@
 	height: fit-children;
 }
 
+.map-selection-list--competitive-section-container.has-selection-list-section--type-capt
+{
+	overflow: clip clip;
+	height: 100%;
+}
+
 .map-selection-list-section
 {
 	width: 72%;
@@ -71,7 +136,7 @@
 	flow-children: right-wrap;
 	overflow: clip noclip;
 	padding: 0px 16px;
-	border-right: 1px solid rgba(255, 255, 255, 0.25);
+	border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .AspectRatio16x9 .map-selection-list-section:not(.map-selection-list-section--single-column)
@@ -87,10 +152,21 @@
 	padding: 0px 16px;
 }
 
+.map-selection-list--competitive-section-container.has-selection-list-section--type-capt .map-selection-list-section:not(.map-selection-list-section--type-capt)
+{
+	overflow: clip scroll;
+	height: 100%;
+}
+
+.map-selection-list-section.map-selection-list-section--type-capt
+{
+	height: 100%;
+}
+
 .map-selection-list-section__header
 {
 	width: 100%;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .map-selection-list-section-header__text
@@ -163,16 +239,9 @@
 
 .map-selection-btn.coop-map-tile
 {
-	height: 100%;
+	height: 615px;
 	width: height-percentage(70%);
 }
-
-.map-selection-btn.coop-map-tile
-{
-	height: 100%;
-	width: height-percentage(70%);
-}
-
 
 .map-selection-btn--large
 {
@@ -189,29 +258,11 @@
 	margin: 20px;
 }
 
-.AspectRatio4x3 .map-selection-btn--full
+.map-selection-btn--full
 {
-	width: 1010px;
-	height: width-percentage( 64% );
-}
-
-.AspectRatio5x4 .map-selection-btn--full
-{
-	width: 965px;
-	height: width-percentage( 68% );
-}
-
-.AspectRatio16x9 .map-selection-btn--full
-{
-	width: 1360px;
-	height: width-percentage( 47.5% );
-}
-
-.map-selection-btn--full,
-.AspectRatio16x10 .map-selection-btn--full
-{
-	width: 1250px;
-	height: width-percentage( 52% );
+	width: 100%;
+	height: 100%;
+	margin: 0px;
 }
 
 .map-selection-btn__screenshot
@@ -226,6 +277,41 @@
 	transition-duration: 2s, .25s;
 	transition-timing-function: ease-in-out;
 }
+
+.map-selection-list-section--type-capt .map-selection-btn
+{
+	margin-left: 0px;
+	margin-right: 0px;
+	width: 100%;
+	                                  
+	height: fill-parent-flow( 1 );
+}
+
+.map-selection-list-section-header__text_activedutymaps
+{
+	visibility: collapse;
+}
+
+                                           
+.play-menu__lobbymapveto_activated .has-selection-list-section--type-capt .map-selection-list-section--type-comp .map-selection-list-section__header Label,
+.play-menu__lobbymapveto_activated .has-selection-list-section--type-capt .map-selection-list-section--type-comp .map-selection-list-section__header Button,
+.play-menu__lobbymapveto_activated .has-selection-list-section--type-capt .map-selection-list-section--type-comp ToggleButton .TickBox,
+.play-menu__lobbymapveto_activated .play-menu-get-prime
+{
+	opacity: 0;
+}
+
+.play-menu__lobbymapveto_activated .has-selection-list-section--type-capt .map-selection-list-section--type-comp ToggleButton:not(.map-selection-btn-activedutymap)
+{
+	visibility: collapse;
+}
+
+.play-menu__lobbymapveto_activated .has-selection-list-section--type-capt .map-selection-list-section--type-comp .map-selection-list-section__header Label.map-selection-list-section-header__text_activedutymaps
+{
+	opacity: 1;
+	visibility: visible;
+}
+                                                  
 
 .map-selection-btn:enabled:Hover .map-selection-btn__screenshot
 {
@@ -243,7 +329,8 @@
 	sound: "UIPanorama.submenu_contents_rollover";
 }
 
-.map-selection-btn:selected .map-selection-btn__screenshot
+.map-selection-btn:selected .map-selection-btn__screenshot,
+.play-menu__lobbymapveto_activated .map-selection-btn .map-selection-btn__screenshot
 {
 	pre-transform-scale2d: 1.2, 1.2;
 
@@ -252,7 +339,8 @@
 	transition-timing-function: ease-in-out;
 }
 
-.map-selection-btn:selected
+.map-selection-btn:selected,
+.play-menu__lobbymapveto_activated .map-selection-btn
 {
 	border: 7px solid white;
 	box-shadow: white 0px 0px 4px 0px;
@@ -300,6 +388,20 @@
 	margin: 0px 0px 20px 0px;
 }
 
+.map-selection-btn__groupmap-icons.map-selection-btn__groupmap-icons-2x
+{
+	width: 184px;
+}
+
+.map-selection-btn__groupmap-icons-subcontainer
+{
+	flow-children: right;
+	horizontal-align: middle;
+	width: fit-children;
+	height: fit-children;
+	margin: 0px;
+}
+
 .map-selection-btn__map-icon
 {
 	horizontal-align: middle;
@@ -327,20 +429,20 @@
 	opacity: .5;
 	brightness: .3;
 	wash-color: none;
-	
 }
 
 .map-selection-list:disabled .map-selection-btn .map-selection-btn__screenshot,
 .map-selection-list:disabled .map-selection-btn:selected .map-selection-btn__map-icon,
 .map-selection-list.is-client .map-selection-btn:selected .map-selection-btn__map-icon
-
 {
 	pre-transform-scale2d: 1, 1;
 	opacity: 1;
 }
 
 .map-selection-list:disabled .map-selection-btn:selected,
-.map-selection-list.is-client .map-selection-btn:selected
+.map-selection-list.is-client .map-selection-btn:selected,
+.play-menu__lobbymapveto_activated .has-selection-list-section--type-capt.map-selection-list:disabled .map-selection-list-section--type-comp .map-selection-btn,
+.play-menu__lobbymapveto_activated .has-selection-list-section--type-capt.map-selection-list.is-client .map-selection-list-section--type-comp .map-selection-btn
 {
 	border: 7px solid rgb(148, 147, 147);
 	box-shadow: shadowOffset;
@@ -401,8 +503,8 @@
 
 .map-selection-info__new.map-selection-info__unranked
 {
-	background-color: brown;
-	border: 1px solid rgb(233, 98, 68);
+	background-color: #709f70;
+	border: 1px solid positiveColor;
 	text-transform: uppercase;
 }
 
@@ -434,6 +536,41 @@ RadioButton .map-selection-info__new
 	horizontal-align: center;
 	vertical-align: bottom;
 	visibility: visible;
+}
+
+.map-selection-list-section--type-capt .map-selection-info
+{
+	vertical-align: top;
+	flow-children: down;
+}
+
+.map-selection-info__map-capt
+{
+	text-align: left;
+	text-overflow: clip;
+	font-size: 17px;
+	font-weight: lighter;
+	margin: 4% 10% 0% 10%;
+	height: fit-children;
+	width: fit-children;
+	vertical-align: top;
+	text-overflow: ellipsis;
+	visibility: collapse;
+}
+
+.map-selection-list-section--type-capt .map-selection-info__map-capt
+{
+	visibility: visible;
+}
+
+.map-selection-list-section--type-capt .map-selection-info__wait-time-block
+{
+	opacity: 0;
+}
+
+.map-selection-list-section--type-capt .map-selection-info__map-name
+{
+	visibility: collapse;
 }
 
 .map-selection-info__wait-time-block.hidden,
@@ -536,7 +673,87 @@ RadioButton .map-selection-info__new
 	height: 96px;
 	padding-left: 64px;
 	vertical-align: bottom;
-	border-top: 1px solid rgba(255, 255, 255, 0.05);
+	border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.play-menu-controls-lobby-count
+{
+	width: fit-children;
+	flow-children: right;
+	vertical-align: center;
+	margin-right: -25px;
+	padding: 10px;
+}
+
+.play-menu-controls-lobby-count .play-menu-controls-lobby-icon
+{
+	margin-left: 2px;
+	visibility: collapse;
+}
+
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-1 .play-menu-controls-lobby-icon,
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-2 .play-menu-controls-lobby-icon,
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-3 .play-menu-controls-lobby-icon,
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-4 .play-menu-controls-lobby-icon,
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-5 .play-menu-controls-lobby-icon
+{
+	visibility: visible;
+	wash-color: disabledColor;
+}
+
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-1 .play-menu-controls-lobby-icon.play-menu-controls-lobby-icon-1,
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-2 .play-menu-controls-lobby-icon.play-menu-controls-lobby-icon-2,
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-3 .play-menu-controls-lobby-icon.play-menu-controls-lobby-icon-3,
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-4 .play-menu-controls-lobby-icon.play-menu-controls-lobby-icon-4,
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-5 .play-menu-controls-lobby-icon.play-menu-controls-lobby-icon-5
+{	                                                                                            
+	wash-color: white;
+}
+
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-1.play-menu-controls-lobby-count-host .play-menu-controls-lobby-icon.play-menu-controls-lobby-icon-1,
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-2.play-menu-controls-lobby-count-host .play-menu-controls-lobby-icon.play-menu-controls-lobby-icon-2,
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-3.play-menu-controls-lobby-count-host .play-menu-controls-lobby-icon.play-menu-controls-lobby-icon-3,
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-4.play-menu-controls-lobby-count-host .play-menu-controls-lobby-icon.play-menu-controls-lobby-icon-4,
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-5.play-menu-controls-lobby-count-host .play-menu-controls-lobby-icon.play-menu-controls-lobby-icon-5
+{	                                                                                          
+	wash-color: positiveColor;
+}
+
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-5.play-menu-controls-lobby-count-host .play-menu-controls-lobby-icon.play-menu-controls-lobby-icon-1,
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-5.play-menu-controls-lobby-count-host .play-menu-controls-lobby-icon.play-menu-controls-lobby-icon-2,
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-5.play-menu-controls-lobby-count-host .play-menu-controls-lobby-icon.play-menu-controls-lobby-icon-3,
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-5.play-menu-controls-lobby-count-host .play-menu-controls-lobby-icon.play-menu-controls-lobby-icon-4,
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-5.play-menu-controls-lobby-count-host .play-menu-controls-lobby-icon.play-menu-controls-lobby-icon-5
+{	                                                               
+	animation-name: play-menu-controls-lobby-count-full-team;
+	animation-duration: 1.8s;
+    animation-timing-function: ease-in-out;
+	animation-iteration-count: infinite;
+	                         
+	
+	transition-property: border;
+	opacity:1.0;
+}
+
+@keyframes play-menu-controls-lobby-count-full-team
+{
+    0% {
+		transform: scale3d( .9, .9, .9);
+		              
+	}
+    55% {
+		img-shadow: 1px 1px 1px 1.0 #ffffff;
+		transform: scale3d( 1, 1, 1);
+		brightness:1.8;
+	}
+	100% {
+		transform: scale3d( .9, .9, .9);
+	}
+}
+
+.play-menu-controls-lobby-count.play-menu-controls-lobby-count-5.play-menu-controls-lobby-count-host
+{	                                                                                          
+	                          
 }
 
 .play-menu-controls-actions-bar__right
@@ -676,6 +893,16 @@ RadioButton .map-selection-info__new
     text-align: center;
 }
 
+.game-mode-selection-radios-spacer
+{
+	width: 15px;
+	height: 60%;
+	margin-left: 8px;
+	margin-right: 8px;
+	border-left: 1px solid rgba(255, 255, 255, 0.1);
+	vertical-align: center;
+}
+
 .workshop-search-textentry
 {
 	height: 54px;
@@ -763,11 +990,20 @@ RadioButton .map-selection-info__new
 	transition-timing-function: ease-in-out;
 }
 
+.play-menu-mapandlbs-container
+{
+	flow-children: right;
+	horizontal-align: right;
+	margin-right: 16px;
+	width: 100%;
+}
+
 .play-menu-svl-auto-squad-toggle-container
 {
 	flow-children: right;
 	vertical-align: bottom;
 	horizontal-align: right;
+	margin-left: 16px;
 	margin-right: 16px;
 	width: 100%;
 }

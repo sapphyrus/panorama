@@ -50,15 +50,31 @@ var AdvertisingToggle = ( function()
         var gameModes = [
             { mode: 'competitive' },
             { mode:'scrimcomp2v2' },
-            { mode:'survival' }
+			{ mode:'survival' },
+			{ mode:'cooperative' },
         ];
 
         var items = [];
         gameModes.forEach( entry =>
-        {
-            var labelLoc = entry.mode === advertisingMode ?
-                "<b><font color='#2aa32e'>" + $.Localize( '#advertising_for_hire_' + entry.mode ) + '</b></font>' :
-                $.Localize( '#advertising_for_hire_' + entry.mode );
+        {	                                                          
+			if ( !PartyListAPI.IsPlayerForHireAdvertisingEnabledForGameMode( entry.mode ) )
+				return;
+
+			var sReplaces = ["<img src='file://{images}/icons/ui/broken_fang.svg'",                                                                                            
+				"<img src='file://{images}/icons/ui/shattered_web.svg'"];
+			var sLocalizedMode = $.Localize( '#advertising_for_hire_' + entry.mode );
+			for ( var k = 0; k < sReplaces.length; ++ k )
+			{
+				if ( sLocalizedMode.startsWith( sReplaces[k] ) )
+				{
+					sLocalizedMode = sReplaces[0] + sLocalizedMode.substr( sReplaces[k].length );
+					break;
+				}
+			}
+			
+			var labelLoc = entry.mode === advertisingMode ?
+                "<b><font color='#2aa32e'>" + sLocalizedMode + '</b></font>' :
+                sLocalizedMode;
             
             items.push( { label: labelLoc, style: 'Icon', jsCallback: callbackFunction.bind( undefined, entry.mode ) } );
         } );

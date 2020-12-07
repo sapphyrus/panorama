@@ -64,6 +64,14 @@
 		<snippet name="TopRightExtraButtonsSnippet">
 			<Panel class='content-navbar__tabs'>
 				<Panel class="inv-nav__seperator" />
+				<Panel id="InvXrayBtnContainer" class="vertical-center full-height hide">
+					<Button id="InvXrayBtn" class="inv-nav-solid-btn">
+						<Label text="#popup_xray_title" />
+					</Button>
+					<Panel id="" class="navbar-btn__notification inv-nav-solid-btn-notification">
+						<Label id="" class="navbar-btn__notification-text" text="1"/>
+					</Panel>
+				</Panel>
 				<Button id="InvSearchBtn"
 							class="" 
 							data-type='any'>
@@ -83,8 +91,20 @@
 			<Panel class="horizontal-align-right vertical-center left-right-padding">
 				<Button id="InvMarketLink" class="IconButton left-right-flow" >
 					<Image src="file://{images}/icons/ui/link.svg"/>
-					<Label text="#Market"/>
+					<Label text="#store_tab_market"/>
 				</Button>
+			</Panel>
+		</snippet>
+
+		<snippet name="CapabilityActionBar">
+			<Panel>
+				<Panel id="CapabilityPopupMultiStatus" class="right-left-flow horizontal-align-right vertical-center">
+					<Button id="CapabilityPopupMultiStatusBtn" class="PopupButton Positive"
+						onactivate="InventoryPanel.ProceedForMultiStatusCapabilityPopup();" >
+						<Label text="#SFUI_Crafting_Exchange"/>
+					</Button>
+					<Label class="inv-popup-title__text inv-popup-rightextra-label" text="#CSGO_Recipe_Count_Items_Selected" id="CapMultiStatusCounterLabel" html="true"/>
+				</Panel>
 			</Panel>
 		</snippet>
 	</snippets>
@@ -140,7 +160,9 @@
 						<Label class="inv-popup-title__text" id="CapItemName" text=""/>
 					</Panel>
 
+
 				</Panel>
+
 			</Panel>
 
 		</Panel>

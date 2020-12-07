@@ -21,6 +21,8 @@ var PlayMenu = ( function()
 	                                              
 	var m_serverSetting = '';
 	var m_gameModeSetting = '';
+	var m_singleSkirmishMapGroup = null;
+	var m_arrSingleSkirmishMapGroups = [];
 	                                                                                                                                            
 
 	                    
@@ -41,7 +43,8 @@ var PlayMenu = ( function()
 		                 
 		armsrace: 'armsrace',
 		demolition: 'demolition',
-		flyingscoutsman: 'flyingscoutsman'
+		flyingscoutsman: 'flyingscoutsman',
+		retakes: 'retakes'
 	};
 
 	var _Init = function()
@@ -96,9 +99,26 @@ var PlayMenu = ( function()
 			entry.SetPanelEvent( 'onactivate', function()
 			{
 				m_isWorkshop = false;
-				m_gameModeSetting = entry.id;
+				if ( _IsSingleSkirmishString( entry.id ) )
+				{
+					m_gameModeSetting = 'skirmish';
+					m_singleSkirmishMapGroup = _GetSingleSkirmishMapGroupFromSingleSkirmishString( entry.id )
+				}
+				else
+				{
+					m_gameModeSetting = entry.id;
+					m_singleSkirmishMapGroup = null;
+				}
 				_ApplySessionSettings();
 			} );
+		} );
+
+		m_arrGameModeRadios.forEach( function( entry )
+		{
+			if ( _IsSingleSkirmishString( entry.id ) )
+			{
+				m_arrSingleSkirmishMapGroups.push( _GetSingleSkirmishMapGroupFromSingleSkirmishString( entry.id ) );
+			}
 		} );
 
 		                      
@@ -137,13 +157,43 @@ var PlayMenu = ( function()
 			btnStartSearch.AddClass( 'pressed' );
 
 			if ( m_isWorkshop )
+			{
 				_DisplayWorkshopModePopup();
+			}
 			else
 			{
+				let settings = ( LobbyAPI.IsSessionActive() && !_GetTournamentOpponent() ) ? LobbyAPI.GetSessionSettings() : null;
+				let stage = _GetTournamentStage();
+				if ( ( !stage || stage === '' )
+					&& settings && settings.game && settings.options
+					&& settings.options.server !== 'listen'
+					&& settings.game.mode === 'competitive'
+					&& settings.game.mapgroupname.includes( 'mg_lobby_mapveto' ) )
+				{
+					stage = '1';
+				}
+
+				  
+				                                     
+				                                                     
+				 	                                                             
+					                                 
+				 
+				                                                                      
+					                                                              
+					                                       
+					                                         
+				 	                                                                          
+					                                                                                                                                                  
+					                                                                                                        
+					       
+				 
+				  
+
 				LobbyAPI.StartMatchmaking(	MyPersonaAPI.GetMyOfficialTournamentName(),
 											MyPersonaAPI.GetMyOfficialTeamName(),
 											_GetTournamentOpponent(),
-											_GetTournamentStage()
+											stage
 										 );
 			}
 		} );
@@ -172,24 +222,85 @@ var PlayMenu = ( function()
 		_ApplySessionSettings();
 	};
 
+	var _SetGameModeRadioButtonAvailableTooltip = function( gameMode, isAvailable, txtTooltip )
+	{
+		var elGameModeSelectionRadios = $( '#GameModeSelectionRadios' );
+		var elTab = elGameModeSelectionRadios ? elGameModeSelectionRadios.FindChildInLayoutFile( gameMode ) : null;
+		if ( elTab )
+		{
+			if ( !isAvailable )
+			{
+				elTab.SetPanelEvent( 'onmouseover', function() {UiToolkitAPI.ShowTextTooltipOnPanel( elTab, txtTooltip );} );
+				elTab.SetPanelEvent( 'onmouseout', function() {UiToolkitAPI.HideTextTooltip();} );
+			}
+			else
+			{
+				elTab.SetPanelEvent( 'onmouseover', function() {} );
+				elTab.SetPanelEvent( 'onmouseout', function() {} );				
+			}
+		}
+	}
+
+	var _SetGameModeRadioButtonVisible = function( gameMode, isVisible )
+	{
+		var elGameModeSelectionRadios = $( '#GameModeSelectionRadios' );
+		var elTab = elGameModeSelectionRadios ? elGameModeSelectionRadios.FindChildInLayoutFile( gameMode ) : null;
+		if ( elTab )
+		{
+			elTab.visible = isVisible;
+		}
+	}
+
 	var _IsGameModeAvailable = function( serverType, gameMode )
 	{
-		       
-		if ( !_IsValveOfficialServer( serverType ) 
-			&& gameMode === "survival" 
-			)
+		var isAvailable = true;
+		
+		if ( gameMode === "survival" )
 		{
-			return false;
+			isAvailable = _IsValveOfficialServer( serverType );
+			_SetGameModeRadioButtonAvailableTooltip( gameMode, isAvailable, '#PlayMenu_dangerzone_onlineonly' );
+			if ( !isAvailable )
+				return false;
 		}
-		       
 
-		if ( gameMode === "cooperative" )
+		if ( gameMode === "cooperative" || gameMode === "coopmission" )
 		{
 			var questID = GetMatchmakingQuestId();
-			return questID > 0 && MissionsAPI.GetQuestDefinitionField( questID, "gamemode" ) === "cooperative";
+			var bGameModeMatchesLobby = questID && ( LobbyAPI.GetSessionSettings().game.mode === gameMode );
+			var bAvailable = bGameModeMatchesLobby && MissionsAPI.GetQuestDefinitionField( questID, "gamemode" ) === gameMode;
+			_SetGameModeRadioButtonVisible( gameMode, bAvailable );                                                  
+			return bAvailable;
 		}
 
-		return true;
+		                                                                           
+		if ( _IsValveOfficialServer( serverType ) &&                                                                                              
+			LobbyAPI.BIsHost() && !(                                         
+			MyPersonaAPI.HasPrestige() || ( MyPersonaAPI.GetCurrentLevel() >= 2 )
+			) )
+		{
+			                                  
+			                                                            
+			  
+			                                                          
+			                                                                             
+			  
+			                                                                        
+			                                                                         
+			   
+			                                                   
+			    
+			   	                                                              
+			   		                                                                                                        
+			   		      
+			   	                                                         
+			   		                                                                   
+			   		      
+			    
+			isAvailable = ( gameMode == 'deathmatch' || gameMode == 'casual' || gameMode == 'survival' || gameMode == 'skirmish' );
+		}
+		                                                                                          
+		_SetGameModeRadioButtonAvailableTooltip( gameMode, isAvailable, '#PlayMenu_unavailable_newuser' );
+		return isAvailable;
 	}
 
 	var _GetTournamentOpponent = function ()
@@ -214,13 +325,14 @@ var PlayMenu = ( function()
 		btnStartSearch.enabled = isSearchingForTournament ? ( _GetTournamentOpponent() != '' && _GetTournamentStage() != '' ) : true;
 	}
 
-	var _UpdateTournamentButton = function( isHost, isSearching )
+	var _UpdateTournamentButton = function( isHost, isSearching, settingsgamemapgroupname )
 	{
 		var bIsOfficialCompetitive = m_gameModeSetting === "competitive" && _IsPlayingOnValveOfficial();
 		var strTeamName = MyPersonaAPI.GetMyOfficialTeamName();
 		var strTournament = MyPersonaAPI.GetMyOfficialTournamentName();
 		var isInTournament = isHost && strTeamName != "" && strTournament != "";
 		$.GetContextPanel().SetHasClass( "play-menu__tournament", isInTournament );
+		$.GetContextPanel().SetHasClass( "play-menu__lobbymapveto_activated", bIsOfficialCompetitive && settingsgamemapgroupname.includes( "mg_lobby_mapveto" ) );
 
 		var isSearchingForTournament = bIsOfficialCompetitive && isInTournament;
 
@@ -295,6 +407,13 @@ var PlayMenu = ( function()
 		m_isWorkshop = settings.game.mapgroupname
 			&& settings.game.mapgroupname.includes( '@workshop' );
 
+		                                                     
+		m_singleSkirmishMapGroup = null;
+		if ( m_gameModeSetting === 'skirmish' && settings.game.mapgroupname && m_arrSingleSkirmishMapGroups.includes( settings.game.mapgroupname ) )
+		{
+			m_singleSkirmishMapGroup = settings.game.mapgroupname;
+		}
+
 		var isHost = LobbyAPI.BIsHost();
 		var isSearching = _IsSearching();
 		var isEnabled = !isSearching && isHost ? true : false;
@@ -312,13 +431,26 @@ var PlayMenu = ( function()
 				var strGameModeForButton = m_arrGameModeRadios[i].id;
 
 				                                               
-				if ( strGameModeForButton === m_gameModeSetting )
+				if ( m_singleSkirmishMapGroup )
 				{
-					m_arrGameModeRadios[i].checked = true;
+					if ( _IsSingleSkirmishString( strGameModeForButton ) )
+					{
+						if ( m_singleSkirmishMapGroup === _GetSingleSkirmishMapGroupFromSingleSkirmishString( strGameModeForButton ) )
+						{
+							m_arrGameModeRadios[i].checked = true;
+						}
+					}
+				}
+				else if ( !_IsSingleSkirmishString( strGameModeForButton ) )
+				{
+					if ( strGameModeForButton === m_gameModeSetting )
+					{
+						m_arrGameModeRadios[i].checked = true;
+					}
 				}
 
 				                                                                                     
-				m_arrGameModeRadios[i].enabled = isEnabled && _IsGameModeAvailable( m_serverSetting, strGameModeForButton );
+				m_arrGameModeRadios[i].enabled = _IsGameModeAvailable( m_serverSetting, strGameModeForButton ) && isEnabled;
 			}
 
 			                                                                   
@@ -328,7 +460,7 @@ var PlayMenu = ( function()
 			_CancelRotatingMapGroupSchedule();
 			if ( settings.game.mode === "survival" )
 			{
-				_GetRotatingMapGroupStatus( m_gameModeSetting, settings.game.mapgroupname );
+				_GetRotatingMapGroupStatus( m_gameModeSetting, m_singleSkirmishMapGroup, settings.game.mapgroupname );
 			}
 
 			_SelectMapButtonsFromSettings( settings );
@@ -341,11 +473,11 @@ var PlayMenu = ( function()
 			m_arrGameModeRadios[0].checked = true;
 		}
 
-		_ShowHideStartSearchBtn( isEnabled );
+		_ShowHideStartSearchBtn( isSearching, isHost );
 		_ShowCancelSearchButton( isSearching, isHost );
 
 		                           
-		_UpdateTournamentButton( isHost, isSearching );
+		_UpdateTournamentButton( isHost, isSearching, settings.game.mapgroupname );
 
 		                   
 		_UpdatePrimeBtn( settings.game.prime === 1 ? true : false );
@@ -361,8 +493,17 @@ var PlayMenu = ( function()
 		_UpdatePlayDropDown();
 		_UpdateBotDifficultyButton();
 
-		$( '#PlayTopNavDropdown' ).enabled = isEnabled;
+		$( '#PlayTopNavDropdown' ).enabled = BIsServerTypeDropdownEnabled();
 		_SetClientViewLobbySettingsTitle( isHost );
+
+		function BIsServerTypeDropdownEnabled()
+		{
+			if ( _IsPlayingOnValveOfficial() &&
+				( m_gameModeSetting === "cooperative" || m_gameModeSetting === "coopmission" ) )
+				return false;
+			else
+				return isEnabled;
+		}
 	};
 
 	var _SetClientViewLobbySettingsTitle = function( isHost )
@@ -396,44 +537,68 @@ var PlayMenu = ( function()
 			return Object.keys( mapgroup );
 		}
 
-		if ( gameMode === "cooperative" && GetMatchmakingQuestId() > 0 )
+		if ( ( gameMode === "cooperative" || gameMode === "coopmission" ) && GetMatchmakingQuestId() > 0 )
 		{
 			return [ LobbyAPI.GetSessionSettings().game.mapgroupname ];
 		}
 
-		  
-		                                               
-		                                
-		 
-			                         
-			                                                           
-				                                                                                     
-					                                                                                   
-				 
-			    
-			                                 
-			 
-				                       
-			 
-		 
-		  
-		
 		return [];
 	};
 
-	var _GetMapGroupPanelID = function ( serverType, gameMode )
+	var _GetMapGroupPanelID = function ( serverType, gameMode, singleSkirmishMapGroup )
 	{
-		var panelID = 'gameModeButtonContainer_' + gameMode + '_' + serverType;
+		var gameModeId = gameMode + ( singleSkirmishMapGroup ? '@' + singleSkirmishMapGroup : '' );
+		var panelID = 'gameModeButtonContainer_' + gameModeId + '_' + serverType;
 		return panelID;
 	}
 
 	var _OnActivateMapOrMapGroupButton = function( mapgroupButton )
 	{
+		var mapGroupNameClicked = mapgroupButton.GetAttributeString( "mapname", '' );
+		if ( $.GetContextPanel().BHasClass( 'play-menu__lobbymapveto_activated' ) && mapGroupNameClicked !== 'mg_lobby_mapveto' )
+		{	                                                                
+			return;
+		}
+
 		$.DispatchEvent( 'PlaySoundEffect', 'submenu_leveloptions_select', 'MOUSE' );
+
+		                                                                                                    
+		var mapGroupName = mapGroupNameClicked;
+		if ( mapGroupName )
+		{
+			var siblingSuffix = '_scrimmagemap';
+			if ( mapGroupName.toLowerCase().endsWith( siblingSuffix ) )
+				mapGroupName = mapGroupName.substring( 0, mapGroupName.length - siblingSuffix.length );
+			else
+				mapGroupName = mapGroupName + siblingSuffix;
+
+			                                   
+			var elParent = mapgroupButton.GetParent();
+			if ( elParent )
+				elParent = elParent.GetParent();
+			if ( elParent && elParent.GetAttributeString( 'hassections', '') )
+			{
+				elParent.Children().forEach( function( section )
+				{
+					section.Children().forEach( function( tile )
+					{
+						var mapGroupNameSibling = tile.GetAttributeString( "mapname", '' );
+						if ( mapGroupNameSibling.toLowerCase() === mapGroupName.toLowerCase() )
+						{	                           
+							tile.checked = false;
+						}
+					} );
+				} );
+			}
+		}
 
 		if ( _CheckContainerHasAnyChildChecked( _GetMapListForServerTypeAndGameMode( m_activeMapGroupSelectionPanelID )) )
 		{ 
 			_ApplySessionSettings();
+		}
+		else if ( mapGroupNameClicked === 'mg_lobby_mapveto' )
+		{	                                                                                         
+			$.GetContextPanel().SetHasClass( "play-menu__lobbymapveto_activated", false );
 		}
 	}
    
@@ -467,44 +632,112 @@ var PlayMenu = ( function()
 		$( '#WorkshopVisitButton' ).enabled = SteamOverlayAPI.IsEnabled();
 	}
 
-	var _LazyCreateMapListPanel = function( serverType, gameMode )
+	var _LazyCreateMapListPanel = function( serverType, gameMode, singleSkirmishMapGroup )
 	{
 		                                                                
+		var strRequireTagNameToReuse = null;
+		var strRequireTagValueToReuse = null;
 
-		var panelID = _GetMapGroupPanelID( serverType, gameMode );
+		if ( ( gameMode === "cooperative" ) || ( gameMode === "coopmission" ) )
+		{
+			strRequireTagNameToReuse = 'map-selection-quest-id';
+			strRequireTagValueToReuse = '' + GetMatchmakingQuestId();
+		}
+
+		var panelID = _GetMapGroupPanelID( serverType, gameMode, singleSkirmishMapGroup );
 		if ( panelID in m_mapSelectionButtonContainers )
-				return panelID;
+		{
+			var bAllowReuseExistingContainer = true;
+			var elExistingContainer = m_mapSelectionButtonContainers[ panelID ];
+			if ( elExistingContainer && strRequireTagNameToReuse )
+			{
+				var strExistingTagValue = elExistingContainer.GetAttributeString( strRequireTagNameToReuse, '' );
+				bAllowReuseExistingContainer = ( strExistingTagValue === strRequireTagValueToReuse );
+			}
+
+			                                                          
+			var elFriendLeaderboards = elExistingContainer ? elExistingContainer.FindChildTraverse( "FriendLeaderboards" ) : null;
+			if ( elFriendLeaderboards )
+			{
+				var strEmbeddedLeaderboardName = elFriendLeaderboards.GetAttributeString( "type", null );
+				if ( strEmbeddedLeaderboardName )
+				{
+					LeaderboardsAPI.Refresh( strEmbeddedLeaderboardName );
+				}
+			}
+
+			if ( bAllowReuseExistingContainer )
+				return panelID;	                                                                
+			else
+				elExistingContainer.DeleteAsync( 0.0 );                                                         
+		}
 				
 		var container = $.CreatePanel( "Panel", $( '#MapSelectionList' ), panelID, {
 			class: 'map-selection-list hidden'
 		} );
 
+		                                                                                                                 
 		m_mapSelectionButtonContainers[ panelID ] = container;
+
+		                                                                
+		var strSnippetNameOverride = "MapSelectionContainer_" + serverType + "_" + gameMode;
+		if ( container.BHasLayoutSnippet( strSnippetNameOverride ) )
+		{	                                               
+			                                                                                                                                                              
+			container.BLoadLayoutSnippet( strSnippetNameOverride );
+			var elMapTile = container.FindChildTraverse( "MapTile" );
+			elMapTile.BLoadLayoutSnippet( "MapGroupSelection" );
+			_LoadLeaderboardsLayoutForContainer( container );
+		}
+		else
+		{	                                                                                 
+			strSnippetNameOverride = null;
+		}
+
+		                                                                                               
+		if ( strRequireTagNameToReuse )
+		{
+			container.SetAttributeString( strRequireTagNameToReuse, strRequireTagValueToReuse );
+		}
 
 		var isPlayingOnValveOfficial = _IsValveOfficialServer( serverType );
 		var arrMapGroups = _GetAvailableMapGroups( gameMode, isPlayingOnValveOfficial );
 		
-		arrMapGroups.forEach( function( item, index, aMapGroups )
+		if ( gameMode === 'skirmish' && m_singleSkirmishMapGroup )
 		{
-			var elSectionContainer = null;
-			if ( gameMode === 'competitive' && _IsValveOfficialServer( m_serverSetting ) )
+			_UpdateOrCreateMapGroupTile( m_singleSkirmishMapGroup, container, null, panelID + m_singleSkirmishMapGroup );
+		}
+		else
+		{
+			arrMapGroups.forEach( function( item, index, aMapGroups )
 			{
-				container.AddClass( 'map-selection-list--competitive-section-container' );
-				container.SetAttributeString( 'hassections', 'true' );
-				elSectionContainer = _GetCreateMapListSection( _IsUnranked( aMapGroups[ index ] ) ? 'unranked' : 'ranked', container );
-			}
-			else
-			{
-				elSectionContainer = container;
-			}
+				if ( gameMode === 'skirmish' && m_arrSingleSkirmishMapGroups.includes( aMapGroups[ index ] ) )
+				{
+					return;
+				}
+				var elSectionContainer = null;
+				if ( gameMode === 'competitive' && _IsValveOfficialServer( m_serverSetting ) )
+				{
+					container.AddClass( 'map-selection-list--competitive-section-container' );
+					container.SetAttributeString( 'hassections', 'true' );
+					elSectionContainer = _GetCreateMapListSection( _GetCategoryForMapName( aMapGroups[ index ] ), container );
+				}
+				else
+				{
+					elSectionContainer = container;
+					if ( strSnippetNameOverride )
+						elSectionContainer = container.FindChildTraverse( "MapTile" );
+				}
 			
-			_UpdateOrCreateMapGroupTile( aMapGroups[ index ], elSectionContainer );
-		} );
+				_UpdateOrCreateMapGroupTile( aMapGroups[ index ], elSectionContainer, null, panelID + aMapGroups[ index ] );
+			} );
+		}
 
 		                                                                          
 		container.OnPropertyTransitionEndEvent = function( panelName, propertyName )
 		{
-			if ( container.id === panelName && propertyName === 'opacity' )
+			if ( container.id === panelName && propertyName === 'opacity' &&
+				!container.id.startsWith( "FriendLeaderboards" ) )
 			{
 				                                         
 				if ( container.visible === true && container.BIsTransparent() )
@@ -521,9 +754,18 @@ var PlayMenu = ( function()
 		return panelID;
 	};
 
-	var _IsUnranked = function( mapName )
+	var _GetCategoryForMapName = function( mapName )
 	{
-		return ( GameTypesAPI.GetMapGroupAttribute( mapName, 'competitivemod' ) === 'unranked' );
+		if ( mapName === 'mg_lobby_mapveto' || mapName === 'lobby_mapveto' )
+		{
+			return 'capt';
+		}
+		else
+		{
+			return 'comp';
+		}
+		                                                                                            
+		                                     
 	};
 
 	var _GetCreateMapListSection = function( type, container )
@@ -533,7 +775,11 @@ var PlayMenu = ( function()
 		if ( !elSectionContainer )
 		{
 			elSectionContainer = $.CreatePanel( 'Panel', container, m_gameModeSetting + '-maps-section-' + type );
-			elSectionContainer.SetHasClass( 'map-selection-list-section--single-column', type === 'unranked' );
+			
+			container.AddClass( 'has-selection-list-section--type-' + type );
+			elSectionContainer.AddClass( 'map-selection-list-section--type-' + type );
+			
+			elSectionContainer.SetHasClass( 'map-selection-list-section--single-column', ( type === 'unranked' ) || ( type === 'capt' ) );
 			elSectionContainer.BLoadLayoutSnippet( "MapListSection" );
 			elSectionContainer.FindChildInLayoutFile( 'play-maps-section-header' ).text = $.Localize( '#play_maps_section_' + type );
 
@@ -546,16 +792,16 @@ var PlayMenu = ( function()
 		return elSectionContainer;
 	};
 
-	var _GetPanelTypeForMapGroupTile = function( gameMode )
+	var _GetPanelTypeForMapGroupTile = function( gameMode, singleSkirmishMapGroup )
 	{
 		var bIsCompetitive = gameMode === 'competitive';
-		var bIsSkirmish = gameMode === 'skirmish';
+		var bIsSkirmish = gameMode === 'skirmish' && !singleSkirmishMapGroup;
 		var bIsWingman = gameMode === 'scrimcomp2v2';
 
 		return ( ( ( bIsCompetitive || bIsSkirmish || bIsWingman ) && _IsValveOfficialServer( m_serverSetting ) ) ? "ToggleButton" : "RadioButton" );
 	};
 
-	var _UpdateOrCreateMapGroupTile = function( mapGroupName, container, elTilePanel )
+	var _UpdateOrCreateMapGroupTile = function( mapGroupName, container, elTilePanel, newTileID )
 	{
 		var mg = GetMGDetails( mapGroupName );
 		if ( !mg ) 
@@ -565,25 +811,38 @@ var PlayMenu = ( function()
 
 		if ( !p )
 		{
-			var panelType = _GetPanelTypeForMapGroupTile( m_gameModeSetting );
-			var panelID = container.id;
-			p = $.CreatePanel( panelType, container, panelID + mapGroupName );
+			var panelType = _GetPanelTypeForMapGroupTile( m_gameModeSetting, m_singleSkirmishMapGroup );
+			var panelID = newTileID ? newTileID : ( container.id + mapGroupName );
+			p = $.CreatePanel( panelType, container, panelID );
 			p.BLoadLayoutSnippet( "MapGroupSelection" );
 			if ( panelType === "RadioButton" )
 			{
-				p.group = "radiogroup_" + panelID;
+				                             
+				var radioGroupID;
+				if ( panelID.endsWith( mapGroupName ) )
+					radioGroupID = panelID.substring( 0, panelID.length - mapGroupName.length );
+				else
+					radioGroupID = container.id;
+
+				p.group = "radiogroup_" + radioGroupID;
 			}
 		}
 
 		p.SetAttributeString( "mapname", mapGroupName );
 		p.SetPanelEvent( 'onactivate', _OnActivateMapOrMapGroupButton.bind( this, p ) );
 
+		p.SetHasClass( 'map-selection-btn-activedutymap', mg.grouptype === 'active' );
 		p.FindChildInLayoutFile( 'ActiveGroupIcon' ).visible = mg.grouptype === 'active';
 		p.FindChildInLayoutFile( 'MapGroupName' ).text = $.Localize( mg.nameID );
 
 		var keysList = Object.keys( mg.maps );
 		var mapIcon = null;
 		var mapImage = null;
+
+		if ( p.GetParent().id === 'MapTile' )
+		{
+			p.AddClass( 'map-selection-btn--full' );
+		}
 
 		                                           
 		if ( keysList.length > 1 )
@@ -596,41 +855,43 @@ var PlayMenu = ( function()
 		{
 			if ( m_gameModeSetting === 'survival' && _IsValveOfficialServer( m_serverSetting ) )
 			{
-				container.AddClass( 'flow-down' );
-				
-				p.AddClass( 'map-selection-btn--full' );
-
 				if ( MyPersonaAPI.GetLauncherType() === "perfectworld" )
 				{
 					p.FindChildInLayoutFile( 'MapGroupBetaTag' ).RemoveClass( 'hidden' );
 				}
-
-				var elAutoSquadToggle = container.FindChildInLayoutFile( panelID + mapGroupName + 'autosquad' );
-				if ( !elAutoSquadToggle )
-				{
-					var elAutoSquadToggle = $.CreatePanel( 'Panel', container, panelID + mapGroupName + 'autosquad' );
-					elAutoSquadToggle.BLoadLayoutSnippet( "SurvivalAutoSquad" );	
-				}
 			}
 			
 			var iconPath = mapGroupName === 'random' ? 'file://{images}/icons/ui/random.svg' : 'file://{images}/' + mg.icon_image_path + '.svg';
-			var iconSize = m_gameModeSetting === 'survival' ? '256' : '116';
+			var iconSize = GetIconSize();
 			var mapGroupIcon = p.FindChildInLayoutFile( 'MapSelectionButton' ).FindChildInLayoutFile( 'MapGroupCollectionIcon' );
 
 			if ( mapGroupIcon )
 			{
-				mapGroupIcon.DeleteAsync(0);
+				mapGroupIcon.SetImage( iconPath );
 			}
-			mapGroupIcon = $.CreatePanel( 'Image', p.FindChildInLayoutFile( 'MapSelectionButton' ), 'MapGroupCollectionIcon', {
-				defaultsrc: 'file://{images}/map_icons/map_icon_NONE.png',
-				texturewidth: iconSize,
-				textureheight: iconSize,
-				src: iconPath,
-				class: 'map-selection-btn__map-icon'
-			} );
+			else
+			{
+				mapGroupIcon = $.CreatePanel( 'Image', p.FindChildInLayoutFile( 'MapSelectionButton' ), 'MapGroupCollectionIcon', {
+					defaultsrc: 'file://{images}/map_icons/map_icon_NONE.png',
+					texturewidth: iconSize,
+					textureheight: iconSize,
+					src: iconPath,
+					class: 'map-selection-btn__map-icon'
+				} );
+				p.FindChildInLayoutFile( 'MapSelectionButton' ).MoveChildBefore( mapGroupIcon, p.FindChildInLayoutFile( 'MapGroupCollectionMultiIcons' ) );
+			}
 
-			p.FindChildInLayoutFile( 'MapSelectionButton' ).MoveChildBefore( mapGroupIcon, p.FindChildInLayoutFile( 'MapGroupCollectionMultiIcons' ) );
-			
+			function GetIconSize()
+			{
+				if ( m_gameModeSetting === 'survival' )
+					return '256'
+				else if ( m_gameModeSetting === 'cooperative' )
+					return '256'
+				else if ( m_gameModeSetting === 'coopmission' )
+					return '256'
+					 
+				return '116';
+			}
 		}
 
 		if ( mapGroupName === 'random' )
@@ -651,6 +912,7 @@ var PlayMenu = ( function()
 		_SetMapGroupModifierLabelElements( mapGroupName, p );
 
 		                              
+		var numImagesPerMultiIconRow = ( keysList.length > 6 ) ? 2 : 1;
 		for ( var i = 0; i < keysList.length; i++ )
 		{
 			mapImage = p.FindChildInLayoutFile( 'MapGroupImagesCarousel' ).FindChildInLayoutFile( 'MapSelectionScreenshot' + i );
@@ -676,10 +938,24 @@ var PlayMenu = ( function()
 			{
 				                                   
 
-				mapIcon = p.FindChildInLayoutFile( 'MapGroupCollectionMultiIcons' ).FindChildInLayoutFile( 'MapIcon' + i );
+				var mapIconsContainer = p.FindChildInLayoutFile( 'MapGroupCollectionMultiIcons' );
+				if ( numImagesPerMultiIconRow > 1 )
+				{
+					var subContainerID = 'MultiIconsSubPanel' + Math.floor( i / numImagesPerMultiIconRow );
+					var subPanel = mapIconsContainer.FindChildTraverse( subContainerID );
+					if ( !subPanel )
+					{
+						subPanel = $.CreatePanel( 'Panel', mapIconsContainer, subContainerID );
+						subPanel.AddClass( 'map-selection-btn__groupmap-icons-subcontainer' );
+					}
+					mapIconsContainer = subPanel;
+				}
+
+				var subMapIconImagePanelID = 'MapIcon' + i;
+				mapIcon = mapIconsContainer.FindChildInLayoutFile( subMapIconImagePanelID );
 				if ( !mapIcon )
 				{
-					mapIcon = $.CreatePanel( 'Image', p.FindChildInLayoutFile( 'MapGroupCollectionMultiIcons' ), 'MapIcon' + i, {
+					mapIcon = $.CreatePanel( 'Image', mapIconsContainer, subMapIconImagePanelID, {
 						defaultsrc: 'file://{images}/map_icons/map_icon_NONE.png',
 						texturewidth: '72',
 						textureheight: '72',
@@ -693,6 +969,11 @@ var PlayMenu = ( function()
 
 				IconUtil.SetupFallbackMapIcon( mapIcon, 'file://{images}/map_icons/map_icon_' + keysList[ i ] );
 			}
+		}
+
+		if ( numImagesPerMultiIconRow > 1 )
+		{	                                                     
+			p.FindChildInLayoutFile( 'MapGroupCollectionMultiIcons' ).AddClass( 'map-selection-btn__groupmap-icons-2x' );
 		}
 
 		          
@@ -732,7 +1013,7 @@ var PlayMenu = ( function()
 
 	var m_timerMapGroupHandler = null;
 
-	var _GetRotatingMapGroupStatus = function( gameMode, mapgroupname )
+	var _GetRotatingMapGroupStatus = function( gameMode, singleSkirmishMapGroup, mapgroupname )
 	{
 		m_timerMapGroupHandler = null;
 		var strSchedule = CompetitiveMatchAPI.GetRotatingOfficialMapGroupCurrentState( gameMode, mapgroupname );
@@ -761,22 +1042,21 @@ var PlayMenu = ( function()
 
 				                               
 				                                                                                                 
-				var mapGroupPanelID = _GetMapGroupPanelID( m_serverSetting, gameMode );
-				var mapGroupContainer = m_mapSelectionButtonContainers[ m_activeMapGroupSelectionPanelID ];
+				var mapGroupPanelID = _GetMapGroupPanelID( m_serverSetting, gameMode, singleSkirmishMapGroup ) + strCurrentMapGroup;
+				var mapGroupContainer = m_mapSelectionButtonContainers[ m_activeMapGroupSelectionPanelID ].FindChildTraverse( 'MapTile' );
 
-				var mapGroupPanel = mapGroupContainer.FindChildInLayoutFile( mapGroupPanelID + strCurrentMapGroup );
+				var mapGroupPanel = mapGroupContainer.FindChildInLayoutFile( mapGroupPanelID );
 				if ( !mapGroupPanel )
 				{
 					mapGroupContainer.RemoveAndDeleteChildren();
-					var btnMapGroup = _UpdateOrCreateMapGroupTile( strCurrentMapGroup, mapGroupContainer );
+					var btnMapGroup = _UpdateOrCreateMapGroupTile( strCurrentMapGroup, mapGroupContainer, null, mapGroupPanelID );
 					
 					                                                                            
 					btnMapGroup.checked = true;
 					_UpdateSurvivalAutoFillSquadBtn( m_gameModeSetting );
 				}
 
-				m_timerMapGroupHandler = $.Schedule( 1, _GetRotatingMapGroupStatus.bind( undefined, gameMode, mapgroupname ) );
-				
+				m_timerMapGroupHandler = $.Schedule( 1, _GetRotatingMapGroupStatus.bind( undefined, gameMode, singleSkirmishMapGroup, mapgroupname ) );
 				                                                                                                                                                                                                     
 			}
 			else
@@ -801,7 +1081,7 @@ var PlayMenu = ( function()
 				var mapSelectedGroupName = btnSelectedMapGroup[ 0 ].GetAttributeString( 'mapname', '' );
 				if ( mapSelectedGroupName )
 				{
-					_GetRotatingMapGroupStatus( m_gameModeSetting, mapSelectedGroupName );
+					_GetRotatingMapGroupStatus( m_gameModeSetting, m_singleSkirmishMapGroup, mapSelectedGroupName );
 				}
 			}
 		}
@@ -819,60 +1099,82 @@ var PlayMenu = ( function()
 
 	var _SetMapGroupModifierLabelElements = function( mapName, elMapPanel )
 	{
-		var isUnrankedCompetitive = false;                                                                                                                                                                             
+		var isUnrankedCompetitive = ( m_gameModeSetting === 'competitive' ) && _IsValveOfficialServer( m_serverSetting ) && ( GameTypesAPI.GetMapGroupAttribute( mapName, 'competitivemod' ) === 'unranked' );
 		var isNew = !isUnrankedCompetitive  && ( GameTypesAPI.GetMapGroupAttribute( mapName, 'showtagui' ) === 'new' );
 
 		elMapPanel.FindChildInLayoutFile( 'MapGroupNewTag' ).SetHasClass( 'hidden', !isNew );
 		elMapPanel.FindChildInLayoutFile( 'MapGroupUnrankedTag' ).SetHasClass( 'hidden', !isUnrankedCompetitive );
 	};
 
+	var _ReloadLeaderboardLayoutGivenSettings = function ( container, lbName, strTitleOverride, strPointsTitle )
+	{
+		var elFriendLeaderboards = container.FindChildTraverse( "FriendLeaderboards" );
+		                                                                                                                                                                                   
+		elFriendLeaderboards.SetAttributeString( "type", lbName );
+		if ( strPointsTitle )
+			elFriendLeaderboards.SetAttributeString( "points-title", strPointsTitle );
+
+		if ( strTitleOverride )
+			elFriendLeaderboards.SetAttributeString( "titleoverride", strTitleOverride );
+
+		elFriendLeaderboards.BLoadLayout('file://{resources}/layout/popups/popup_leaderboards.xml', true, false);
+		elFriendLeaderboards.AddClass( 'leaderboard_embedded' );
+		elFriendLeaderboards.AddClass( 'play_menu_survival' );
+		elFriendLeaderboards.RemoveClass( 'Hidden' );
+	}
+
+	var _LoadLeaderboardsLayoutForContainer = function( container )
+	{
+		if ( ( m_gameModeSetting === "cooperative" ) || ( m_gameModeSetting === "coopmission" ) )
+		{
+			var questID = GetMatchmakingQuestId();
+			if ( questID > 0 )
+			{
+				var lbName = "official_leaderboard_quest_" + questID;
+				var elFriendLeaderboards = container.FindChildTraverse( "FriendLeaderboards" );
+				if ( elFriendLeaderboards.GetAttributeString( "type", null ) !== lbName  )
+				{
+					var strTitle = '#CSGO_official_leaderboard_mission_embedded';
+					                                                                         
+					_ReloadLeaderboardLayoutGivenSettings( container, lbName, strTitle );
+				}
+
+				var elDescriptionLabel = container.FindChildTraverse( "MissionDesc" );
+				elDescriptionLabel.text = MissionsAPI.GetQuestDefinitionField( questID, "loc_description" )
+				MissionsAPI.ApplyQuestDialogVarsToPanelJS( questID, container );
+				var arrGameElements = OperationUtil.GetQuestGameElements( questID );
+				if ( arrGameElements.length > 0 )
+				{
+					var elIconContainer = container.FindChildTraverse( "GameElementIcons" );
+					arrGameElements.forEach( function ( info, idx )
+					{
+						$.CreatePanel( 'Image', elIconContainer, 'GameElementIcon_' + idx, {
+							texturewidth: 64,
+							textureheight: 64,
+							src: info.icon,
+							class: 'coop-mission__icon'
+						} );
+					} );
+				}
+			}
+		}
+		else if ( m_gameModeSetting === "survival" )
+		{
+			                                                                          
+		}
+	}
 
 	var _UpdateMapGroupButtons = function( isEnabled, isSearching, isHost )
 	{
-		var panelID;
-		if ( m_gameModeSetting === "cooperative" )
+		var panelID = _LazyCreateMapListPanel( m_serverSetting, m_gameModeSetting, m_singleSkirmishMapGroup );
+		
+		                                    
+		if ( ( m_gameModeSetting === 'competitive' || m_gameModeSetting === 'scrimcomp2v2' ) && _IsPlayingOnValveOfficial() )
 		{
-			var panelID = _GetMapGroupPanelID( m_serverSetting, m_gameModeSetting );
-			if ( !(panelID in m_mapSelectionButtonContainers) )
-			{
-				m_mapSelectionButtonContainers[ panelID ] = $.CreatePanel( "Panel", $( '#MapSelectionList' ), panelID );
-				m_mapSelectionButtonContainers[ panelID ].BLoadLayoutSnippet( "CoopMission" );
-				var elMapTile = m_mapSelectionButtonContainers[ panelID ].FindChildTraverse( "MapTile" );
-				elMapTile.BLoadLayoutSnippet( "MapGroupSelection" );
-			}
-
-			_UpdateOrCreateMapGroupTile( LobbyAPI.GetSessionSettings().game.mapgroupname, m_mapSelectionButtonContainers[ panelID ], m_mapSelectionButtonContainers[ panelID ].FindChildTraverse( "MapTile" ) );
-
-			if ( GetMatchmakingQuestId() > 0 )
-			{
-				var lbName = "official_leaderboard_quest_" + GetMatchmakingQuestId();
-				var elFriendLeaderboards = m_mapSelectionButtonContainers[ panelID ].FindChildTraverse( "FriendLeaderboards" );
-				if ( elFriendLeaderboards.GetAttributeString( "type", null ) !== lbName  )
-				{
-					elFriendLeaderboards.SetAttributeString( "type", "official_leaderboard_quest_" + GetMatchmakingQuestId() );
-					elFriendLeaderboards.SetAttributeString( "points-title", "#Cstrike_TitlesTXT_WINS" );
-					elFriendLeaderboards.BLoadLayout('file://{resources}/layout/popups/popup_leaderboards.xml', true, false);
-					elFriendLeaderboards.RemoveClass( 'Hidden' );
-					elFriendLeaderboards.AddClass( 'leaderboard_embedded' );
-					elFriendLeaderboards.AddClass( 'play_menu_survival' );
-				}
-
-				var elDescriptionLabel = m_mapSelectionButtonContainers[ panelID ].FindChildTraverse( "MissionDesc" );
-				MissionsAPI.ApplyQuestDialogVarsToPanelJS( GetMatchmakingQuestId(), elDescriptionLabel );
-			}
+			_UpdateWaitTime( _GetMapListForServerTypeAndGameMode(  panelID ) );
 		}
-		else 
-		{
-			panelID = _LazyCreateMapListPanel( m_serverSetting, m_gameModeSetting );
-			
-			                                    
-			if ( ( m_gameModeSetting === 'competitive' || m_gameModeSetting === 'scrimcomp2v2' ) && _IsPlayingOnValveOfficial() )
-			{
-				_UpdateWaitTime( _GetMapListForServerTypeAndGameMode(  panelID ) );
-			}
 
-			_SetEnabledStateForMapBtns( m_mapSelectionButtonContainers[ panelID ], isSearching, isHost );
-		}
+		_SetEnabledStateForMapBtns( m_mapSelectionButtonContainers[ panelID ], isSearching, isHost );
 
 		                    
 		m_activeMapGroupSelectionPanelID = panelID;
@@ -893,8 +1195,9 @@ var PlayMenu = ( function()
 		} );
 	};
 
-	var _ShowHideStartSearchBtn = function( bShow )
+	var _ShowHideStartSearchBtn = function( isSearching, isHost )
 	{
+		let bShow = !isSearching && isHost ? true : false;
 		var btnStartSearch = $.GetContextPanel().FindChildInLayoutFile( 'StartMatchBtn' );
 
 		                                                                    
@@ -915,6 +1218,27 @@ var PlayMenu = ( function()
 		{
 			btnStartSearch.AddClass( 'hidden' );
 		}
+
+		  
+		                                                     
+		  
+		let panelPlayMenuControlLobbyUserIcons = $.GetContextPanel().FindChildInLayoutFile( 'PlayMenuControlLobbyUserIcons' );
+		let numStyleToShow = 0;
+		if ( !isSearching && ( m_gameModeSetting === 'competitive' ) &&
+			_IsPlayingOnValveOfficial() && ( PartyListAPI.GetCount() >= PartyListAPI.GetPartySessionUiThreshold() ) )
+		{
+			numStyleToShow = PartyListAPI.GetCount();
+			if ( ( numStyleToShow > 5 ) || ( 0 == PartyListAPI.GetPartySessionUiThreshold() ) )
+			{	                                                                                                           
+				numStyleToShow = 5;
+			}
+		}
+		numStyleToShow = 0;                                    
+		for ( let j = 1; j <= 5; ++ j )
+		{
+			panelPlayMenuControlLobbyUserIcons.SetHasClass( 'play-menu-controls-lobby-count-' + j, j <= numStyleToShow );
+		}
+		panelPlayMenuControlLobbyUserIcons.SetHasClass( 'play-menu-controls-lobby-count-host', isHost );
 	};
 
 	var _ShowCancelSearchButton = function( isSearching, isHost )
@@ -1009,49 +1333,55 @@ var PlayMenu = ( function()
 
 	function GetMatchmakingQuestId()
 	{
-		return parseInt( LobbyAPI.GetSessionSettings().game.questid ) || 0;
+		var settings = LobbyAPI.GetSessionSettings();
+		if ( settings && settings.game && settings.game.questid )
+			return parseInt( settings.game.questid );
+		else
+			return 0;
 	}
 
 	var _UpdateLeaderboardBtn = function( gameMode, isOfficalMatchmaking )
 	{
 		var elLeaderboardButton = $( '#PlayMenulLeaderboards' );
 		
-		if ( gameMode === 'survival' && _IsPlayingOnValveOfficial() )
-		{
-			elLeaderboardButton.visible = true;
+		          
+		                                                             
+		 
+			                                   
 			
-			var _OnActivate = function ()
-			{
-				UiToolkitAPI.ShowCustomLayoutPopupParameters(
-					'',
-					'file://{resources}/layout/popups/popup_leaderboards.xml',
-					'type=official_leaderboard_survival_squads,official_leaderboard_survival_solo' +
-					'&' + 'titleoverride=#CSGO_official_leaderboard_survival_title' +
-					'&' + 'showglobaloverride=false' +
-					'&' + 'points-title=#Cstrike_TitlesTXT_WINS',
-					'none'
-				);
-			};
+			                             
+			 
+				                                             
+					   
+					                                                          
+					                                                                                
+					                                                                 
+					                                  
+					                                             
+					      
+				  
+			  
 
-			elLeaderboardButton.SetPanelEvent( 'onactivate', _OnActivate );
-		}
-		else if ( gameMode == 'cooperative' && GetMatchmakingQuestId() > 0 )
-		{
-			elLeaderboardButton.visible = true;
-			elLeaderboardButton.SetPanelEvent( 'onactivate', function()
-			{
-				UiToolkitAPI.ShowCustomLayoutPopupParameters(
-					'',
-					'file://{resources}/layout/popups/popup_leaderboards.xml',
-					'type=official_leaderboard_quest_' + GetMatchmakingQuestId(),
-					'&' + 'titleoverride=#CSGO_Operation_Leaderboard_TitleActive' +
-					'&' + 'showglobaloverride=false' +
-					'&' + 'points-title=#Cstrike_TitlesTXT_WINS',
-					'none'
-				);
-			} );
-		}
-		else
+			                                                               
+		 
+		                                                                                                       
+		 
+			                                   
+			                                                           
+			 
+				                                             
+					   
+					                                                          
+					                                                             
+					                                                                   
+					                                  
+					                                               
+					          
+				  
+			    
+		 
+		    
+		          
 		{ 
 			elLeaderboardButton.visible = false;
 		}
@@ -1086,6 +1416,20 @@ var PlayMenu = ( function()
 		{
 			elBtn.visible = false;
 		}
+
+		if ( gameMode === 'survival' )
+		{
+			var lbType = ( ( elBtn.visible && !elBtn.checked ) ? 'solo' : 'squads' );
+			var lbName = "official_leaderboard_survival_" + lbType;
+			var container = elBtn.GetParent().GetParent();
+			var elFriendLeaderboards = container.FindChildTraverse( "FriendLeaderboards" );
+			var sPreviousType = elFriendLeaderboards.GetAttributeString( "type", null );
+			if ( sPreviousType !== lbName  )
+			{
+				                                                                                                        
+				_ReloadLeaderboardLayoutGivenSettings( container, lbName, "#CSGO_official_leaderboard_survival_" + lbType, "#Cstrike_TitlesTXT_WINS" );
+			}
+		}
 	};
 
 	var _SetEnabledStateForMapBtns = function( elMapList, isSearching, isHost )
@@ -1095,7 +1439,7 @@ var PlayMenu = ( function()
 		var childrenList = _GetMapListForServerTypeAndGameMode();
 
 		childrenList.forEach(element => {
-			if ( element.id !== "SurvivalLeaderboardsContainer" )
+			if ( !element.id.startsWith( "FriendLeaderboards" ) )
 			element.enabled = !isSearching && isHost; 
 		});
 	};
@@ -1218,7 +1562,7 @@ var PlayMenu = ( function()
 
 	var _GetMapListForServerTypeAndGameMode = function( mapGroupOverride )
 	{
-		var mapGroupPanelID = !mapGroupOverride ? _LazyCreateMapListPanel( m_serverSetting, m_gameModeSetting ) : mapGroupOverride;
+		var mapGroupPanelID = !mapGroupOverride ? _LazyCreateMapListPanel( m_serverSetting, m_gameModeSetting, m_singleSkirmishMapGroup ) : mapGroupOverride;
 		var elParent = m_mapSelectionButtonContainers[ mapGroupPanelID ];
 
 		if ( m_gameModeSetting === 'competitive' && elParent.GetAttributeString( 'hassections', '') )
@@ -1236,6 +1580,16 @@ var PlayMenu = ( function()
 			} );
 
 			return aListMapPanels;
+		}
+		else if ( _IsPlayingOnValveOfficial() && ( m_gameModeSetting === 'survival'
+			|| m_gameModeSetting === 'cooperative' 
+			|| m_gameModeSetting === 'coopmission' ) )
+		{
+			let elMapTile = elParent.FindChildTraverse( "MapTile" );
+			if ( elMapTile )
+				return elMapTile.Children();
+			else
+				return elParent.Children();
 		}
 		else
 		{
@@ -1303,6 +1657,31 @@ var PlayMenu = ( function()
 		return selectedMaps;
 	};
 
+	var _GetSingleSkirmishIdFromMapGroup = function ( mapGroup )
+	{
+		return mapGroup.replace( 'mg_skirmish_', '' );
+	};
+
+	var _GetSingleSkirmishMapGroupFromId = function ( skirmishId )
+	{
+		return 'mg_skirmish_' + skirmishId;
+	};
+
+	var _GetSingleSkirmishIdFromSingleSkirmishString = function ( entry )
+	{
+		return entry.replace( 'skirmish_', '' );
+	};
+
+	var _GetSingleSkirmishMapGroupFromSingleSkirmishString = function ( entry )
+	{
+		return _GetSingleSkirmishMapGroupFromId( _GetSingleSkirmishIdFromSingleSkirmishString( entry ) );
+	};
+
+	var _IsSingleSkirmishString = function ( entry )
+	{
+		return entry.startsWith( 'skirmish_' );
+	};
+
 	                                                                                                    
 	                                                    
 	                                                                                                    
@@ -1330,10 +1709,42 @@ var PlayMenu = ( function()
 
 		if ( !_IsGameModeAvailable( m_serverSetting, m_gameModeSetting ) )
 		{
-			                                   
-			  
-			                                                   
-			m_gameModeSetting = "casual";
+			                                                                
+			m_gameModeSetting = GameInterfaceAPI.GetSettingString( "ui_playsettings_mode_" + m_serverSetting );
+			m_singleSkirmishMapGroup = null;
+
+			if ( _IsSingleSkirmishString( m_gameModeSetting ) )
+			{
+				m_singleSkirmishMapGroup = _GetSingleSkirmishMapGroupFromSingleSkirmishString( m_gameModeSetting );
+				m_gameModeSetting = 'skirmish';
+			}
+		
+			if ( !_IsGameModeAvailable( m_serverSetting, m_gameModeSetting ) )
+			{
+				                                                                                                                                            
+				  
+				                                                          
+				                                                                             
+				  
+				                                   
+				  
+				                                                                      
+				var modes = [
+					"deathmatch", "casual",
+					"survival", "skirmish",
+					"scrimcomp2v2", "competitive",
+					];
+				
+				for ( var i = 0; i < modes.length; i++ )
+				{
+					if ( _IsGameModeAvailable( m_serverSetting, modes[ i ] ) )
+					{
+						m_gameModeSetting = modes[ i ];
+						m_singleSkirmishMapGroup = null;
+						break;
+					}
+				}
+			}
 		}
 	};
 
@@ -1366,6 +1777,8 @@ var PlayMenu = ( function()
 
 		if ( m_isWorkshop )
 			selectedMaps = _GetSelectedWorkshopMap();
+		else if ( m_singleSkirmishMapGroup )
+			selectedMaps = m_singleSkirmishMapGroup;
 		else
 			selectedMaps = _GetSelectedMapsForServerTypeAndGameMode( serverType, gameMode );
 
@@ -1404,8 +1817,13 @@ var PlayMenu = ( function()
 		}
 		else
 		{
-			GameInterfaceAPI.SetSettingString( 'ui_playsettings_mode_' + serverType, m_gameModeSetting );
-			GameInterfaceAPI.SetSettingString( 'ui_playsettings_maps_' + serverType + '_' + m_gameModeSetting, selectedMaps );
+			var singleSkirmishSuffix = '';
+			if ( m_singleSkirmishMapGroup )
+			{
+				singleSkirmishSuffix = '_' + _GetSingleSkirmishIdFromMapGroup( m_singleSkirmishMapGroup );
+			}
+			GameInterfaceAPI.SetSettingString('ui_playsettings_mode_' + serverType, m_gameModeSetting + singleSkirmishSuffix );
+			GameInterfaceAPI.SetSettingString('ui_playsettings_maps_' + serverType + '_' + m_gameModeSetting + singleSkirmishSuffix, selectedMaps);
 		}
 
 		                                                                  
@@ -1555,6 +1973,7 @@ var PlayMenu = ( function()
 			class: 'map-selection-list hidden'
 		} );
 
+		                                                                                 
 		m_mapSelectionButtonContainers[ panelId ] = container;
 
 		var numMaps = WorkshopAPI.GetNumSubscribedMaps();

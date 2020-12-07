@@ -9,3 +9,4 @@
 ## Credits:
 - [Unzipping method](https://www.unknowncheats.me/forum/2157360-post2.html)
 - [WasserEsser](https://www.unknowncheats.me/forum/members/446006.html) for his original repo
+- [KibbeWater](https://interium.ooo/forum/member.php?action=profile&uid=16) Updated :3

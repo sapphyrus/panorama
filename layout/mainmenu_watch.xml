@@ -9,6 +9,7 @@
 	<scripts>
 		<include src="file://{resources}/scripts/generated/items_event_current_generated_store.js" />
 		<include src="file://{resources}/scripts/common/licenseutil.js" />
+		<include src="file://{resources}/scripts/common/iteminfo.js" />
 		<include src="file://{resources}/scripts/watchtile.js" />
 		<include src="file://{resources}/scripts/mainmenu_watch.js" />
 		<include src="file://{resources}/scripts/matchlist.js" />
@@ -58,9 +59,9 @@
 					<Panel class="content-navbar__tabs">
 						                                                                                                                                                 
 						                                                         
-						<RadioButton id="WatchNavBarActiveTourament" group="WatchNavBar" onactivate="mainmenu_watch.NavigateToTab('JsActiveTournament', 'active tournament menu button');">
-							<Label class="" text="#CSGO_Tournament_Event_NameShort_16"/>
-						</RadioButton>
+						                                                                                                                                                                        
+							                                                            
+						                  
 						<RadioButton id="WatchNavBarButtonTournaments" group="WatchNavBar" onactivate="mainmenu_watch.NavigateToTab('JsTournaments', 'tournament menu button');">
 							<Label class="" text="#CSGO_Watch_Cat_Tournament_0"/>
 						</RadioButton>
@@ -72,9 +73,6 @@
 						</RadioButton>						
 						<RadioButton id="WatchNavBarButtonLive" group="WatchNavBar" onactivate="mainmenu_watch.NavigateToTab('JsLive', 'live menu button');">
 							<Label class="" text="#CSGO_Watch_Cat_LiveMatches"/>
-						</RadioButton>
-						<RadioButton id="WatchNavBarButtonTournaments" group="WatchNavBar" onactivate="mainmenu_watch.NavigateToTab('JsTournaments', 'tournament menu button');">
-							<Label class="" text="#CSGO_Watch_Cat_Majors"/>
 						</RadioButton>											
 						<RadioButton id="WatchNavBarButtonStreams" group="WatchNavBar" onactivate="mainmenu_watch.NavigateToTab('JsStreams', 'streams menu button');">
 							<Label class="" text="#CSGO_Watch_Cat_Streams"/>

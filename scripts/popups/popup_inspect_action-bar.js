@@ -9,11 +9,13 @@ var InspectActionBar = ( function (){
 	                                
 	var m_showCert = true;
 	var m_showEquip = true;
+	var m_insideCasketID = '';
 	var m_showSave = true;
 	var m_showMaketLink = false;
 	var m_showCharSelect = true;
-
+	var m_blurOperationPanel = false;
 	var m_previewingMusic = false;
+	var m_schfnMusicMvpPreviewEnd = null;
 	
 	var _Init = function( elPanel, itemId, funcGetSettingCallback, funcGetSettingCallbackInt, elItemModelImagePanel )
 	{
@@ -27,22 +29,29 @@ var InspectActionBar = ( function (){
 		m_callbackHandle = funcGetSettingCallbackInt( 'callback', -1 );
 		m_showCert = ( funcGetSettingCallback( 'showitemcert', 'true' ) === 'false' );
 		m_showEquip = ( funcGetSettingCallback( 'showequip', 'true' ) === 'false' );
+		m_insideCasketID = funcGetSettingCallback( 'insidecasketid', '' );
 		m_showSave = ( funcGetSettingCallback( 'allowsave', 'true' ) === 'true' );
 		m_showMaketLink = ( funcGetSettingCallback( 'showmarketlink', 'false' ) === 'true' );
 		m_showCharSelect = ( funcGetSettingCallback( 'showcharselect', 'true' ) === 'true' );
+		m_blurOperationPanel = ( $.GetContextPanel().GetAttributeString( 'bluroperationpanel', 'false' ) === 'true' ) ? true : false;
 		
 		_SetUpItemCertificate( elPanel, itemId );
 		_SetupEquipItemBtns( elPanel, itemId );
-		_ShowWeaponAndCharacterModelBtns( elPanel, itemId );
-		_ShowSaveCharBtn( elPanel );
+		_ShowButtonsForWeaponInspect( elPanel, itemId );
+		_ShowButtonsForCharacterInspect( elPanel, itemId );
 		_SetCloseBtnAction( elPanel );
 		_SetUpMarketLink( elPanel, itemId );
 
 		var slot = ItemInfo.GetSlot( itemId );
 		if ( slot == "musickit" )
 		{
-			InventoryAPI.PlayItemPreviewMusic( null, itemId );
+			                                                                        
+			InventoryAPI.PlayItemPreviewMusic( itemId );
 			m_previewingMusic = true;
+
+			                                                              
+			var elMusicBtn = elPanel.FindChildInLayoutFile( 'InspectPlayMvpBtn' );
+			elMusicBtn.SetHasClass( 'hidden', ( InventoryAPI.GetItemRarity( itemId ) <= 0 ) );                                      
 		}
 	};
 
@@ -112,6 +121,15 @@ var InspectActionBar = ( function (){
 	{
 		var elMoreActionsBtn = elPanel.FindChildInLayoutFile( 'InspectActionsButton' );
 		var elSingleActionBtn = elPanel.FindChildInLayoutFile( 'SingleAction' );
+
+		if ( m_insideCasketID )
+		{
+			elMoreActionsBtn.AddClass( 'hidden' );
+			elSingleActionBtn.RemoveClass( 'hidden' );
+			elSingleActionBtn.text = '#popup_casket_action_remove';
+			elSingleActionBtn.SetPanelEvent( 'onactivate', _OnMoveItemFromCasketToInventory.bind( this, m_insideCasketID, id ) );
+			return;
+		}
 		
 		if ( m_showEquip )
 		{
@@ -122,6 +140,7 @@ var InspectActionBar = ( function (){
 
 		var isFanToken = ItemInfo.ItemDefinitionNameSubstrMatch(id, 'tournament_pass_');
 		var isSticker = ItemInfo.ItemMatchDefName( id, 'sticker' );
+		var isPatch = ItemInfo.ItemMatchDefName( id, 'patch' );
 		var isSpraySealed = ItemInfo.IsSpraySealed( id );
 		var isEquipped = ( ItemInfo.IsEquippedForT( id ) || ItemInfo.IsEquippedForCT( id ) || ItemInfo.IsEquippedForNoTeam( id ) ) ? true : false;
 		
@@ -130,6 +149,7 @@ var InspectActionBar = ( function (){
 			isSticker ||
 			isSpraySealed ||
 			isFanToken ||
+			isPatch ||
 			isEquipped )
 		{
 			elMoreActionsBtn.AddClass( 'hidden' );
@@ -137,7 +157,7 @@ var InspectActionBar = ( function (){
 			if ( !isEquipped  )
 			{
 				elSingleActionBtn.RemoveClass( 'hidden' );
-				_SetUpSingleActionBtn( elPanel, id, ( isSticker || isSpraySealed || isFanToken ) );
+				_SetUpSingleActionBtn( elPanel, id, ( isSticker || isSpraySealed || isFanToken || isPatch ) );
 			}
 
 			return;
@@ -161,7 +181,18 @@ var InspectActionBar = ( function (){
 			if ( entry.AvailableForItem( id ) )
 			{
 				var closeInspect = isSticker ? true : false;
-				elSingleActionBtn.text = '#inv_context_' + entry.name;
+				var displayName = '';
+
+				if ( entry.name instanceof Function )
+				{
+					displayName = entry.name( id );
+				}
+				else
+				{
+					displayName = entry.name;
+				}
+
+				elSingleActionBtn.text = '#inv_context_' + displayName;
 				elSingleActionBtn.SetPanelEvent( 'onactivate', _OnSingleAction.bind( this, entry, id, closeInspect ) );
 			}
 		}
@@ -177,19 +208,34 @@ var InspectActionBar = ( function (){
 		entry.OnSelected( id );
 	};
 
+	var _OnMoveItemFromCasketToInventory = function( idCasket, idSubjectItem )
+	{
+		_CloseBtnAction();
+		
+		UiToolkitAPI.ShowCustomLayoutPopupParameters(
+			'', 
+			'file://{resources}/layout/popups/popup_casket_operation.xml',
+			'op=remove' +
+			'&nextcapability=casketcontents' +
+			'&spinner=1' +
+			'&casket_item_id=' + idCasket +
+			'&subject_item_id=' + idSubjectItem
+		);
+	};
+
 	                                                                                                    
 	                            
 	                                                                                                    
-	var _ShowWeaponAndCharacterModelBtns = function ( elPanel, id )
+	var _ShowButtonsForWeaponInspect = function ( elPanel, id )
 	{
 		if ( m_showCharSelect === false )
 		{
 			return;
 		}
 		
-		var list = _GetValidCharacterModels( id );
+		var hasAnims = ItemInfo.IsCharacter( id ) || ItemInfo.IsWeapon( id );
 
-		if ( ( list && list.length > 0 ) &&
+		if ( hasAnims &&
 			!ItemInfo.IsEquippalbleButNotAWeapon( id ) &&
 			!ItemInfo.ItemMatchDefName( id, 'sticker' ) &&
 			!ItemInfo.IsSpraySealed( id ) &&
@@ -197,85 +243,97 @@ var InspectActionBar = ( function (){
 			!ItemInfo.ItemDefinitionNameSubstrMatch( id, "tournament_pass_" )
 		)
 		{
-			var hasAnims = CharacterAnims.ItemHasCharacterAnims(
-							list[0].team,
-							ItemInfo.GetSlotSubPosition(id),
-							ItemInfo.GetItemDefinitionName(id),
-							id
-			);
-	
 			elPanel.FindChildInLayoutFile( 'InspectCharBtn' ).SetHasClass( 'hidden', !hasAnims );
 			elPanel.FindChildInLayoutFile( 'InspectWeaponBtn' ).SetHasClass( 'hidden', !hasAnims );
+
+			var list =	                                                                          
+				CharacterAnims.GetValidCharacterModels( true ).filter(function (entry) {
+					return (ItemInfo.IsItemCt(id) && ( entry.team === 'ct' || entry.team === 'any' )) ||
+						(ItemInfo.IsItemT(id) && ( entry.team === 't'|| entry.team === 'any')) ||
+						ItemInfo.IsItemAnyTeam(id);
+				});
 			
-			if ( hasAnims )
-			{
+			if ( list && ( list.length > 0 ) )
 				_SetDropdown( elPanel, list, id );
-			}
 		}
 	};
 
-	var _GetValidCharacterModels = function ( id )
+	function _ShowButtonsForCharacterInspect ( elPanel, id )
 	{
-		return CharacterAnims.GetValidCharacterModels().filter(function (entry) {
-			return (ItemInfo.IsItemCt(id) && ( entry.team === 'ct' || entry.team === 'any' )) ||
-				(ItemInfo.IsItemT(id) && ( entry.team === 't'|| entry.team === 'any')) ||
-				ItemInfo.IsItemAnyTeam(id);
-		});
-	};
+		var elPreviewPanel = m_modelImagePanel.FindChildTraverse( 'InspectItemModel' );
+		elPreviewPanel.SetHasClass( 'inspect-model-panel-size-for-characters', ItemInfo.IsCharacter( id ) );
+
+		if ( !ItemInfo.IsCharacter( id ) )
+			return;
+		
+		elPanel.FindChildInLayoutFile( 'id-character-button-container' ).SetHasClass( 'hidden', false );	
+		
+		var characterToolbarButtonSettings = {
+			charItemId: id,
+			cameraPresetUnzoomed: 16,
+			cameraPresetZoomed: 17
+		};
+
+		var elCharacterButtons = elPanel.FindChildInLayoutFile( 'id-character-buttons' );
+		CharacterButtons.InitCharacterButtons( elCharacterButtons, elPreviewPanel, characterToolbarButtonSettings );
+	}
 
 	var _SetDropdown = function( elPanel, vaildEntiresList, id )
 	{
+		                                       
+		var currentMainMenuVanitySettings = ItemInfo.GetOrUpdateVanityCharacterSettings(
+			ItemInfo.IsItemAnyTeam( id ) ? null
+			: LoadoutAPI.GetItemID( ItemInfo.IsItemCt(id) ? 'ct' : 't', 'customplayer' )
+		);
+
 		var elDropdown = elPanel.FindChildInLayoutFile( 'InspectDropdownCharModels' );
 
-		vaildEntiresList.forEach( function ( entry ){
-			var elDropdown = elPanel.FindChildInLayoutFile( 'InspectDropdownCharModels' );
-			var newEntry = $.CreatePanel( 'Label', elDropdown, entry.model, {
+		vaildEntiresList.forEach( function( entry )
+		{
+			var rarityColor = ItemInfo.GetRarityColor( entry.itemId );
+			
+			var newEntry = $.CreatePanel( 'Label', elDropdown, entry.itemId, {
 				'class': 'DropDownMenu',
 				'html': 'true',
-			    'text': entry.label,
+			    'text': "<font color='" + rarityColor + "'>•</font> " + entry.label,
 				'data-team': ( entry.team === 'any' ) ? ( ( ItemInfo.IsItemT(id) || ItemInfo.IsItemAnyTeam(id) ) ? 't' : 'ct' ) : entry.team
 			});
 	
 			elDropdown.AddOption( newEntry );
 		} );
-		
 
 		elDropdown.SetPanelEvent( 'oninputsubmit', InspectActionBar.OnUpdateCharModel.bind( undefined, false, elDropdown, id ));
-		elDropdown.SetSelected( vaildEntiresList[ 0 ].model );
+		elDropdown.SetSelected( currentMainMenuVanitySettings.charItemId );
 		elDropdown.SetPanelEvent( 'oninputsubmit', InspectActionBar.OnUpdateCharModel.bind( undefined, true, elDropdown, id ));
 	};
 
-	var _OnUpdateCharModel = function ( bPlaySound, elDropdown, itemId )
+	var _OnUpdateCharModel = function ( bPlaySound, elDropdown, weaponItemId )
 	{
-		var modelPath = elDropdown.GetSelected().id;
-		var team = elDropdown.GetSelected().GetAttributeString( 'data-team', '(not found)');
-
-		InspectModelImage.SetCharScene( m_modelImagePanel, itemId, modelPath, team );
+		var characterItemId = elDropdown.GetSelected().id;
+		InspectModelImage.SetCharScene( m_modelImagePanel, characterItemId, weaponItemId );
 		
-		if( bPlaySound ) {
-
-			                                                                             
-			                                                                                  
-			var soundName = modelPath;
-			for(var i = soundName.length-1; i > 0; --i) {
-				if(soundName[i] == '/' || soundName[i] == '\\') {
-					soundName = soundName.substring(i+1);
-					break;
-				}
-			}
-
-			if(soundName.substring(soundName.length-4) == ".mdl") {
-				soundName = soundName.substring(0, soundName.length-4);
-				$.DispatchEvent( "PlaySoundEffect", "weapon_select_char_" + soundName, "MOUSE" );
-			}
-		}
+		                                                                                     
+		                                                                                       
+		                     
+		   
+		   	                                                                             
+		   	                                                                                  
+		   	                          
+		   	                                             
+		   		                                                 
+		   			                                     
+		   			      
+		   		 
+		   	 
+		   
+		   	                                                       
+		   		                                                       
+		   		                                                                                 
+		   	 
+		    
 	};
 
-	var _ShowSaveCharBtn = function( elPanel )
-	{
-		var elBtn = elPanel.FindChildInLayoutFile( 'PopupInspectSaveModel' );
-		elBtn.visible = m_showSave;
-	};
+
 
 	                                                                                                    
 	                              
@@ -288,19 +346,30 @@ var InspectActionBar = ( function (){
 		$.GetContextPanel().FindChildTraverse( 'InspectCharModelsControls' ).SetHasClass( 'hidden', type !== 'InspectModelChar' );
 	};
 
-	var _SaveCharacterModelForVanity = function ()
+	var _InspectPlayMusic = function ( type )
 	{
-		$.DispatchEvent( "PlaySoundEffect", "weapon_selectDashboard", "MOUSE" );
+		                                                        
+		if ( !m_previewingMusic )
+			return;
 
-		var model = $.GetContextPanel().FindChildTraverse( 'InspectDropdownCharModels' ).GetSelected().id;
-
-		if( model !== '' )
+		if ( type === 'mvp' )
 		{
-			                                                      
-			CharacterAnims.SaveModelPanelSettingsToConvars();
-			$.DispatchEvent( 'UpdateVanityModelData' );
+			if ( m_schfnMusicMvpPreviewEnd )
+				return;	                                                                    
+
+			InventoryAPI.StopItemPreviewMusic();
+			InventoryAPI.PlayItemPreviewMusic( m_itemId, 'roundmvpanthem_01.mp3' );
+
+			                                                                                         
+			m_schfnMusicMvpPreviewEnd = $.Schedule( 6.8, InspectActionBar.InspectPlayMusic.bind( null, 'schfn' ) );
 		}
-	};
+		else if ( type === 'schfn' )
+		{
+			m_schfnMusicMvpPreviewEnd = null;
+			InventoryAPI.StopItemPreviewMusic();
+			InventoryAPI.PlayItemPreviewMusic( m_itemId );
+		}
+	}
 
 	var _ShowContextMenu = function ()
 	{
@@ -327,7 +396,7 @@ var InspectActionBar = ( function (){
 		elBtn.SetPanelEvent( 'onactivate', _CloseBtnAction );
 	};
 
-	var _CloseBtnAction = function ( )
+	var _CloseBtnAction = function ()
 	{
 		$.DispatchEvent( "PlaySoundEffect", "inventory_inspect_close", "MOUSE" );
 
@@ -345,19 +414,30 @@ var InspectActionBar = ( function (){
 			UiToolkitAPI.InvokeJSCallback( callbackFunc );
 		}
 
+		if( m_blurOperationPanel )
+		{
+			$.DispatchEvent( 'UnblurOperationPanel' );
+		}
+
 		if ( m_previewingMusic )
 		{
 			InventoryAPI.StopItemPreviewMusic();
 			m_previewingMusic = false;
+
+			if ( m_schfnMusicMvpPreviewEnd )
+			{
+				$.CancelScheduled( m_schfnMusicMvpPreviewEnd );
+				m_schfnMusicMvpPreviewEnd = null;
+			}
 		}
 	};
 
 	return{
 		Init						: _Init,
-		SaveCharacterModelForVanity	: _SaveCharacterModelForVanity,
 		ShowContextMenu: _ShowContextMenu,
 		CloseBtnAction: _CloseBtnAction,
 		NavigateModelPanel: _NavigateModelPanel,
+		InspectPlayMusic: _InspectPlayMusic,
 		OnUpdateCharModel: _OnUpdateCharModel
 	};
 } )();

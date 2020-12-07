@@ -1,3 +1,4 @@
+
                                                
 
 .PopupPanel
@@ -32,6 +33,13 @@
 
 	transition-property: transform, pre-transform-scale2d, opacity, height, width;
 	transition-duration: 0.2s;
+	transition-timing-function: ease-in-out;
+}
+
+.PopupPanel.popup-operation-launch.Hidden
+{
+	transition-property: transform, pre-transform-scale2d, opacity, height, width;
+	transition-duration: 0.0s;
 	transition-timing-function: ease-in-out;
 }
 
@@ -131,4 +139,10 @@
 .popupbuttonrow__status__loading .Spinner
 {
 	margin: 10px;
+}
+
+.spacer
+{
+	margin-left: 25px;
+	margin-right: 25px;
 }

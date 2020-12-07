@@ -40,7 +40,7 @@ var friendLobby = ( function (){
 	var _SetPrime = function ( elTile )
 	{
 		var primeValue = PartyBrowserAPI.GetPartySessionSetting( _m_xuid, 'game/apr' );
-		elTile.FindChildTraverse( 'JsFriendLobbyPrime' ).visible = primeValue ? true : false;
+		elTile.FindChildTraverse( 'JsFriendLobbyPrime' ).visible = ( primeValue && primeValue != '0' ) ? true : false;
 	};
 
 	var _SetFlag = function ( elTile )
@@ -106,15 +106,19 @@ var friendLobby = ( function (){
 		if ( gameMode === 'cooperative' )
 		{
 			var questId = PartyBrowserAPI.GetPartySessionSetting( _m_xuid, 'game/questid' );
-			var questItemId = InventoryAPI.GetQuestItemIDFromQuestID( questId );
-	
-			return InventoryAPI.GetItemName( '', questItemId );
+			if ( questId && questId != '0' )
+				return $.Localize( MissionsAPI.GetQuestDefinitionField( parseInt( questId ), "loc_name" ) );
 		}
 
 		if( !mapGroups)
 			mapGroups = '';
 		
 		var mapsList = mapGroups.split(',');
+		if ( mapsList.includes( 'mg_lobby_mapveto' ) )
+		{
+			mapsList = [ 'mg_lobby_mapveto' ];
+		}
+		
 		var mapsNiceNamesList = [];
 
 		for ( var i = 0; i < mapsList.length; i++ )

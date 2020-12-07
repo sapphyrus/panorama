@@ -310,9 +310,13 @@ var contextmenuPlayerCard = ( function (){
 			name: 'report',
 			icon: 'alert',
 			AvailableForItem: function ( id ) {
-				return ( GameStateAPI.IsLocalPlayerPlayingMatch() || GameStateAPI.GetGameModeInternalName( false ) === "survival" ) &&
-					!_IsSelf( id ) &&
-					GameStateAPI.IsPlayerConnected( id );
+				return (
+					GameStateAPI.IsLocalPlayerPlayingMatch() ||
+					( GameStateAPI.IsLocalPlayerWatchingOwnDemo() && MatchInfoAPI.CanReportFromCurrentlyPlayingDemo() ) ||
+					GameStateAPI.GetGameModeInternalName( false ) === "survival"
+				) &&
+				!_IsSelf( id ) &&
+				GameStateAPI.IsPlayerConnected( id );
 			},
 			OnSelected: function ( id ) {
 				UiToolkitAPI.ShowCustomLayoutPopupParameters('', 'file://{resources}/layout/popups/popup_report_player.xml', 'xuid=' + id );
@@ -370,6 +374,31 @@ var contextmenuPlayerCard = ( function (){
 				$.DispatchEvent( 'ContextMenuEvent', '' );
 			}
 		},		
+		{
+			name: 'copycrosshair',
+			icon: 'crosshair',
+			AvailableForItem: function ( id ) {
+				return GameStateAPI.IsLocalPlayerPlayingMatch() && 
+					!_IsSelf( id ) && 
+					GameStateAPI.IsPlayerConnected( id );
+			},
+			OnSelected: function( xuid )
+			{
+				$.DispatchEvent( 'Scoreboard_ApplyPlayerCrosshairCode', xuid ); 
+				$.DispatchEvent( 'ContextMenuEvent', '' );
+
+				  
+				                                   
+					                                       
+					                                                
+					   
+					                                                                                                          
+					              
+				  
+				  
+
+			}
+		},
 	];
 
 	var _HasMusicKit = function( id )

@@ -25,6 +25,8 @@ var ItemTile = ( function()
 		_SetRecentLabel( id );
 		_TintSprayImage( id );
 		_DisableTile( id );
+		_SetBackground( id );
+		_SetMultiSelect( id );
 
 		                                                               
 		                                                       
@@ -45,6 +47,45 @@ var ItemTile = ( function()
 	{
 	    var fmtName = ItemInfo.GetFormattedName( id );
 	    fmtName.SetOnLabel( $( '#JsItemName' ) );
+	};
+
+	function _SetBackground ( id )
+	{
+		var elTeamTile = $.GetContextPanel().FindChildInLayoutFile( 'ItemTileTeam' );
+
+		var subSlot = ItemInfo.GetSlotSubPosition( id );
+		if ( subSlot == 'customplayer' )
+		{
+			elTeamTile.visible = true;
+
+			var isCT = ItemInfo.IsItemCt( id );
+
+			if ( isCT )
+			{
+				elTeamTile.SetImage( "file://{images}/icons/ui/ct_logo_1c.svg" );
+				elTeamTile.style.washColor = '#B5D4EE';
+
+			}
+			else
+			{
+				elTeamTile.SetImage( "file://{images}/icons/ui/t_logo_1c.svg" );
+				elTeamTile.style.washColor = '#EAD18A';
+			}
+		}
+		else
+		{
+			elTeamTile.visible = false;
+		}
+	}
+
+	var _SetMultiSelect = function( id )
+	{
+		var bSelectedInMultiSelect = ( $.GetContextPanel().GetParent() &&
+			$.GetContextPanel().GetParent().GetAttributeInt( "capability_multistatus_selected", 0 ) &&
+			InventoryPanel.GetCapabilityInfo().multiselectItemIds &&
+			InventoryPanel.GetCapabilityInfo().multiselectItemIds.hasOwnProperty( id ) );
+		
+		$.GetContextPanel().SetHasClass( 'capability_multistatus_selected', bSelectedInMultiSelect );
 	};
 
 	                             
@@ -133,7 +174,21 @@ var ItemTile = ( function()
 
 		if ( isUpdatedValue === '1' || isRecentValue === '1' )
 		{
-			var locString = ( isRecentValue === '1' ) ? '#inv_session_prop_recent' : '#inv_session_prop_updated';
+			var locString = '#inv_session_prop_recent';
+			if ( isRecentValue === '1' )
+			{	                               
+				                                                                                                     
+				                                                                                                                                             
+				var strItemPickupMethod = InventoryAPI.GetItemSessionPropertyValue( id, 'item_pickup_method' );
+				if ( strItemPickupMethod === 'quest_reward' )
+				{
+					locString = '#inv_session_prop_quest_reward';
+				}
+			}
+			else
+			{	                                                 
+				locString = '#inv_session_prop_updated';
+			}
 			
 			elPanel.RemoveClass( 'hidden' );
 			elPanel.text = $.Localize( locString );
@@ -156,6 +211,12 @@ var ItemTile = ( function()
 		if ( capabilityInfo &&
 			capabilityInfo.capability === 'can_sticker' &&
 			!ItemInfo.ItemMatchDefName( id, 'sticker' ) )
+		{
+			$.GetContextPanel().enabled = ( ItemInfo.GetStickerSlotCount( id ) > ItemInfo.GetStickerCount( id ) );
+		}
+		else if ( capabilityInfo &&
+			capabilityInfo.capability === 'can_patch' &&
+			!ItemInfo.ItemMatchDefName( id, 'patch' ) )
 		{
 			$.GetContextPanel().enabled = ( ItemInfo.GetStickerSlotCount( id ) > ItemInfo.GetStickerCount( id ) );
 		}
@@ -182,6 +243,10 @@ var ItemTile = ( function()
 			{
 				_CapabilityCanStickerAction( SortIdsIntoToolAndItemID( id, capabilityInfo.initialItemId ) );
 			}
+			else if ( capabilityInfo.capability === 'can_patch' )
+			{
+				_CapabilityCanPatchAction( SortIdsIntoToolAndItemID( id, capabilityInfo.initialItemId ) );
+			}
 			else if ( capabilityInfo.capability === 'decodable' )
 			{
 				_CapabilityDecodableAction( SortIdsIntoToolAndItemID( id, capabilityInfo.initialItemId ) );
@@ -189,6 +254,30 @@ var ItemTile = ( function()
 			else if ( capabilityInfo.capability === 'can_stattrack_swap' )
 			{
 				_CapabilityStatTrakSwapAction( capabilityInfo, id );
+			}
+			else if ( capabilityInfo.capability === 'can_collect' )
+			{
+				_CapabilityPutIntoCasketAction( id, capabilityInfo.initialItemId );
+			}
+			else if ( capabilityInfo.capability === 'casketcontents' )
+			{
+				_CapabilityItemInsideCasketAction( capabilityInfo.initialItemId, id );
+			}
+			else if ( capabilityInfo.capability === 'casketretrieve' )
+			{
+				$.GetContextPanel().ToggleClass( 'capability_multistatus_selected' );
+				$.DispatchEvent( 'UpdateSelectItemForCapabilityPopup', capabilityInfo.capability, id,
+					$.GetContextPanel().BHasClass( 'capability_multistatus_selected' )
+					);
+				                                                                               
+			}
+			else if ( capabilityInfo.capability === 'casketstore' )
+			{
+				$.GetContextPanel().ToggleClass( 'capability_multistatus_selected' );
+				$.DispatchEvent( 'UpdateSelectItemForCapabilityPopup', capabilityInfo.capability, id,
+					$.GetContextPanel().BHasClass( 'capability_multistatus_selected' )
+					);
+				                                                                                                 
 			}
 
 			return;
@@ -258,6 +347,16 @@ var ItemTile = ( function()
 		);
 	};
 
+	var _CapabilityCanPatchAction = function( idsToUse )
+	{
+		UiToolkitAPI.ShowCustomLayoutPopupParameters(
+			'',
+			'file://{resources}/layout/popups/popup_capability_can_sticker.xml',
+			'sticker-and-itemtosticker=' + idsToUse.tool + ',' + idsToUse.item +
+			'&' + 'asyncworktype=can_patch'
+		);
+	};
+
 	var _CapabilityDecodableAction = function( idsToUse )
 	{
 		UiToolkitAPI.ShowCustomLayoutPopupParameters(
@@ -267,6 +366,75 @@ var ItemTile = ( function()
 			'&' + 'asyncworktype=decodeable'
 		);
 	};
+
+	var _CapabilityPutIntoCasketAction = function( idCasket, idItem, cap )
+	{
+		                                                                                           
+
+		$.DispatchEvent( 'ContextMenuEvent', '' );
+		if ( !cap ) {
+			$.DispatchEvent( 'HideSelectItemForCapabilityPopup' );
+			$.DispatchEvent( 'UIPopupButtonClicked', '' );
+			$.DispatchEvent( 'CapabilityPopupIsOpen', false );
+		}
+
+		if ( InventoryAPI.GetItemAttributeValue( idCasket, 'modification date' ) )
+		{
+			               
+			UiToolkitAPI.ShowCustomLayoutPopupParameters(
+				'', 
+				'file://{resources}/layout/popups/popup_casket_operation.xml',
+				'op=add' +
+				( cap ? '&nextcapability=' + cap : '' ) +
+				'&spinner=1' +
+				'&casket_item_id=' + idCasket +
+				'&subject_item_id=' + idItem
+			);
+		}
+		else
+		{
+			                                                                                                    
+			var fauxNameTag = InventoryAPI.GetFauxItemIDFromDefAndPaintIndex( 1200, 0 );              
+			UiToolkitAPI.ShowCustomLayoutPopupParameters(
+				'', 
+				'file://{resources}/layout/popups/popup_capability_nameable.xml',
+				'nametag-and-itemtoname=' + fauxNameTag + ',' + idCasket +
+				'&' + 'asyncworktype=nameable' +
+				'&' + 'asyncworkitemwarningtext=#popup_newcasket_warning'
+			);
+		}
+	};
+
+	var _CapabilityItemInsideCasketAction = function( idCasket, idItem )
+	{
+		                                                              
+
+		UiToolkitAPI.ShowCustomLayoutPopupParameters(
+			'',
+			'file://{resources}/layout/popups/popup_inventory_inspect.xml',
+			'itemid=' + idItem +
+			'&' + 'inspectonly=true' +
+			'&' + 'insidecasketid=' + idCasket +
+			'&' + 'showequip=false' +
+			'&' + 'allowsave=false',
+			'none'
+		);
+	}
+
+	var _CapabilityItemRetrieveFromCasketAction = function( idCasket, idItem )
+	{
+		                                                                
+
+		UiToolkitAPI.ShowCustomLayoutPopupParameters(
+			'', 
+			'file://{resources}/layout/popups/popup_casket_operation.xml',
+			'op=remove' +
+			'&nextcapability=casketretrieve' +
+			'&spinner=1' +
+			'&casket_item_id=' + idCasket +
+			'&subject_item_id=' + idItem
+		);
+	}
 
 	var _CapabilityStatTrakSwapAction = function( capInfo, id )
 	{
