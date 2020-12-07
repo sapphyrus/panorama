@@ -10,7 +10,10 @@
 		<include src="file://{resources}/scripts/common/icon.js" />
 		<include src="file://{resources}/scripts/common/licenseutil.js" />
 		<include src="file://{resources}/scripts/common/sessionutil.js" />
+		<include src="file://{resources}/scripts/operation/operation_util.js" />
 		<include src="file://{resources}/scripts/mainmenu_play.js" />
+		<include src="file://{resources}/scripts/controlslibrary.js" />
+		<include src="file://{resources}/scripts/operation/operation_main.js" />
 	</scripts>
 
 	                                                  
@@ -39,6 +42,7 @@
 							<Label id="MapGroupWaitTimeLabel" class="fontSize-s"/>
 						</Panel>
 						<Label id="MapGroupName" class="map-selection-info__map-name fontSize-l"/>
+						<Label class="map-selection-info__map-capt" text="#play_maps_section_detailed_rules_capt" html="true"/>
 					</Panel>
 				</Panel>
 			</Panel>
@@ -49,24 +53,62 @@
 			</Panel>
 		</snippet>
 
-		<snippet name="SurvivalAutoSquad" >
-			<Panel class="play-menu-svl-auto-squad-toggle-container">
-				<Panel id="PlayMenuMapRotationTimer" class="play-menu-map-rotation-timer hidden">
-					<Image class="right-padding" texturewidth="-1" textureheight="20" src="file://{images}/icons/ui/clock.svg" />
-					<Label class="play-menu-map-rotation-timer-label" html="true" text="#rotating_map_timer"/>
+		<snippet name="MapSelectionContainer_official_cooperative" >
+			<Panel class="map-selection-list-coop hidden">
+				<Panel class="play-menu-mapandlbs-container">
+					<Panel id="MapTile" class="coop-map-tile">
+						<Label html="true" id="MissionDesc" class="coop-mission__desc"/> 
+						<Panel id="GameElementIcons" class="coop-mission__icon-container">
+							                                                                   
+						</Panel>
+					</Panel>
+					<Panel id="FriendLeaderboards"/>
 				</Panel>
-				<ToggleButton id="SurvivalAutoSquadToggle" class="PopupButton">
-					<Image class="" texturewidth="-1" textureheight="28" src="file://{images}/icons/ui/lobby.svg" />
-					<Label id="SurvivalAutoSquadToggleLabel" text="#SFUI_DANGERZONE_AUTO_FILL" html="true"/>
-				</ToggleButton>
+				                                        
+					                                                                                                                                
+				          
 			</Panel>
 		</snippet>
 
+		<snippet name="MapSelectionContainer_official_coopmission" >
+			<Panel class="map-selection-list-coop hidden">
+				<Panel class="play-menu-mapandlbs-container">
+					<Panel id="MapTile" class="coop-map-tile">
+						<Label html="true" id="MissionDesc" class="coop-mission__desc" text="#Quest_CoopMission_Desc_op09"/> 
+					</Panel>
+					<Panel id="FriendLeaderboards"/>
+				</Panel>
+				                                        
+					                                                                                                                                
+				          
+			</Panel>
+		</snippet>
+
+		<snippet name="MapSelectionContainer_official_survival" >
+			<Panel class="map-selection-list-coop hidden">
+				<Panel class="play-menu-mapandlbs-container">
+					<Panel id="MapTile" class="coop-map-tile">
+					</Panel>
+					<Panel id="FriendLeaderboards"/>
+				</Panel>
+				<Panel class="play-menu-svl-auto-squad-toggle-container">
+					<Panel id="PlayMenuMapRotationTimer" class="play-menu-map-rotation-timer hidden">
+						<Image class="right-padding" texturewidth="-1" textureheight="20" src="file://{images}/icons/ui/clock.svg" />
+						<Label class="play-menu-map-rotation-timer-label" html="true" text="#rotating_map_timer"/>
+					</Panel>
+					<ToggleButton id="SurvivalAutoSquadToggle" class="PopupButton">
+						<Image class="" texturewidth="-1" textureheight="28" src="file://{images}/icons/ui/lobby.svg" />
+						<Label id="SurvivalAutoSquadToggleLabel" text="#SFUI_DANGERZONE_AUTO_FILL" html="true"/>
+					</ToggleButton>
+				</Panel>
+			</Panel>
+		</snippet>
 
 		<snippet name="MapListSection" >
 			<Panel class="map-selection-list-section">
 				<Panel id="play-maps-section-header-container" class="map-selection-list-section__header">
 					<Label id="play-maps-section-header" class="map-selection-list-section-header__text" text=""/>
+					<Label class="map-selection-list-section-header__text map-selection-list-section-header__text_activedutymaps" text="#play_maps_section_capt_maps_header"/>
 					<Button id="play-maps-section-header-more-info" class="IconButton horizontal-align-right">
 						<Image class="right-margin-medium" texturewidth="-1" textureheight="20" src="file://{images}/icons/ui/info.svg" />
 					</Button>
@@ -111,6 +153,11 @@
 								group="gamemodes" >
 						<Label text="#SFUI_GameModeCompetitive"/>
 					</RadioButton>
+					<RadioButton id='scrimcomp2v2'
+								group="gamemodes" >
+							<Label text="#SFUI_GameModeScrimComp2v2"/>
+					</RadioButton>
+					<Panel class="game-mode-selection-radios-spacer"></Panel>
 					<RadioButton id='casual' 
 								group="gamemodes" >
 						<Label text="#SFUI_GameModeCasual"/>
@@ -123,16 +170,26 @@
 								group="gamemodes" >
 							<Label text="#SFUI_GameModeSkirmish"/>
 					</RadioButton>
-					<RadioButton id='scrimcomp2v2'
-								group="gamemodes" >
-							<Label text="#SFUI_GameModeScrimComp2v2"/>
-					</RadioButton>
-					            
 					<RadioButton id='survival'  
 								group="gamemodes" >
 						<Label text="#SFUI_GameModeSurvival"/>
 					</RadioButton>
-					            
+					<RadioButton id='skirmish_retakes'
+								group="gamemodes" >
+						<Label text="#SFUI_GameModeRetakes"/>
+					</RadioButton>
+					<RadioButton id='cooperative'  
+								group="gamemodes" >
+						<Label text="#SFUI_GameModeCooperative"
+						onmouseover="UiToolkitAPI.ShowTextTooltip( 'cooperative', '#PlayMenu_guardian_tooltip' );"
+						onmouseout="UiToolkitAPI.HideTextTooltip();"/>
+					</RadioButton>
+					<RadioButton id='coopmission'  
+								group="gamemodes" >
+						<Label text="#SFUI_GameModeCoopMission"
+						onmouseover="UiToolkitAPI.ShowTextTooltip( 'coopmission', '#PlayMenu_guardian_tooltip' );"
+						onmouseout="UiToolkitAPI.HideTextTooltip();"/>
+					</RadioButton>
 				</Panel>
 
 				<Panel id="WorkshopSearchBar" class="content-navbar__tabs">
@@ -171,6 +228,17 @@
 						</Button>
 					</Panel>
 					<Panel class="play-menu-controls-actions-bar__right">
+						<Panel id="PlayMenuControlLobbyUserIcons" class="play-menu-controls-lobby-count"
+							style="tooltip-position: top left;"
+							onmouseover="UiToolkitAPI.ShowTextTooltip( 'PlayMenuControlLobbyUserIcons', '#PopupGoTeamMatchmaking_Tooltip_SearchUI' );"
+							onmouseout="UiToolkitAPI.HideTextTooltip();"
+							>
+							<Image class="play-menu-controls-lobby-icon play-menu-controls-lobby-icon-1" texturewidth="-1" textureheight="42" src="file://{images}/icons/ui/teamplayer.svg" />
+							<Image class="play-menu-controls-lobby-icon play-menu-controls-lobby-icon-2" texturewidth="-1" textureheight="42" src="file://{images}/icons/ui/teamplayer.svg" />
+							<Image class="play-menu-controls-lobby-icon play-menu-controls-lobby-icon-3" texturewidth="-1" textureheight="42" src="file://{images}/icons/ui/teamplayer.svg" />
+							<Image class="play-menu-controls-lobby-icon play-menu-controls-lobby-icon-4" texturewidth="-1" textureheight="42" src="file://{images}/icons/ui/teamplayer.svg" />
+							<Image class="play-menu-controls-lobby-icon play-menu-controls-lobby-icon-5" texturewidth="-1" textureheight="42" src="file://{images}/icons/ui/teamplayer.svg" />
+						</Panel>
 						<Panel class="play-menu-controls-action-bar__right__go-cancel">
 							<Button id="StartMatchBtn" class="play-menu__playbtn play-menu__playbtn--startsearch Positive" >
 								<Label text="#SFUI_Lobby_StartMatchButton" />

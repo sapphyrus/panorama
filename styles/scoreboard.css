@@ -6,7 +6,7 @@
 
 @define left-panel-width: 80px;
 
-
+@define sb-row-width: 830px;
 
 @define timeline-round-width: 20px;
 
@@ -158,6 +158,7 @@ Label {
 	
 	width: left-panel-width;                                            
 
+	margin-right: 10px;
 	
  }
 
@@ -214,7 +215,7 @@ Label {
 
 .sb-team__data {
 
-	padding-left: 10px;
+  	                   
 	                               
 	horizontal-align: left;
 }
@@ -224,93 +225,117 @@ Label {
 
 .sb-meta {
 	width: 100%;
-	height: 100px;
-	                          
+	height: 75px;
+	vertical-align: top;
 
+	                          
 	                                               
 	                          
-
 	                                                                                               
-
 }
 
-.sb-meta__labels{
+
+.sb-meta__labels {
 	flow-children: right;
-	horizontal-align: center;
+	color: #CCC;
+	text-shadow-fast: none;                                 
+	font-size: 18px;
+	horizontal-align: left;
+
 	vertical-align: middle;
+	position: 0px 10px 0px;
+}
+
+#sb-meta__labels__text {
+	flow-children: right;
+
+	color: #CCC;
+	text-shadow-fast: none;                                 
+	font-size: 18px;
+	horizontal-align: left;
+
+	vertical-align: center;
+	position: 0px 10px 0px;
+
+	                      
+	color: grey;
+	-s2-mix-blend-mode: SRGBadditive;
+	font-weight: bold;
+	font-family: Stratum2, 'Arial Unicode MS';
 }
 
 .sb-meta__labels Label{
 
 }
 
+.bottom-divider{
+	border-bottom: 1px solid #80808030;
+
+}
+
+.meta-row{
+	padding-top: 4px;
+	padding-bottom: 4px;
+}
+
 #id-sb-meta__mode__image
 {
+	width: 24px;
+	height: 24px;
+	vertical-align: top;
 	margin: 0px 18px 0px 6px;
-	vertical-align: center;
-	opacity: 1;
+	opacity: 1;			
 	wash-color: grey;
 	-s2-mix-blend-mode: SRGBadditive;
 }
 
 #id-sb-meta__labels__mode-map{
 
-	color: #CCC;
-	text-shadow-fast: none;                                 
-	font-size: 32px;
-	                        
+	font-size: 18px;
 	horizontal-align: left;
-
-	vertical-align: top;
-	position: 0px 10px 0px;
 
 	                      
 	color: grey;
 	-s2-mix-blend-mode: SRGBadditive;
+
+	position: 40px 0px 0px;
 
 	font-weight: bold;
 	font-family: Stratum2, 'Arial Unicode MS';
 
 	text-overflow: shrink;
 	max-width: 550px;
-	height: 40px;
 }
 
 
-#id-sb-meta__labels__server{
-
-	font-size: 16px;
-
+#id-sb-meta__labels__server {
+	font-size: 18px;
 	horizontal-align: left;
-	margin-top: 0px;
 
-	max-height: 20px;
-	max-width: 500px;
-	text-overflow: ellipsis;
-
-	vertical-align: top;
-	position: 0px 50px 0px;
-
+	vertical-align: center;
+	position: 0px 10px 0px;
 	color: grey;
 	-s2-mix-blend-mode: SRGBadditive;
 
+	font-weight: bold;
 	font-family: Stratum2, 'Arial Unicode MS';
 
+	text-overflow: ellipsis;
+	max-width: 550px;
 }
 
-#id-viewers {
+#id-sb-meta__labels__server-viewers {
 
-	font-size: 16px;
+	font-size: 14px;
 
-	horizontal-align: left;
+	horizontal-align: right;
 	                      
-
-	vertical-align: top;
 
 	color: grey;
 	-s2-mix-blend-mode: SRGBadditive;
 
 	                      
+	font-weight: normal;
 	font-family: Stratum2, 'Arial Unicode MS';
 }
 
@@ -319,27 +344,42 @@ Label {
 	flow-children: left;
 
 	horizontal-align:right;
-	vertical-align: bottom;
 
-	margin-bottom: 4px;
+	margin-top: 10px;
 
 }
 
+.mutebuttonon Label,
+.mutebuttonon Image{
+	color: red;
+}
 
-.sb-meta__button-panel__btn Label,
-.sb-meta__button-panel__group Label
+
+.sb-meta__button-panel__btn Label
 {
 	text-align: center;
-	font-size: 12px;
+	font-size: 14px;
+	vertical-align: center;
+	horizontal-align: center;
+	text-overflow: ellipsis;
+
+}
+
+.sb-meta__button-panel__btn Image
+{
+	width: 20px;
+	height: 20px;
 }
 
                   
 .sb-meta__button-panel__group {
 
-	
 	flow-children: right;
 
 	margin-left: 10px;
+	height: 26px;
+
+	horizontal-align:right;
 
 	                                         
 }
@@ -347,9 +387,14 @@ Label {
                        
 .sb-meta__button-panel__btn {
 
-	margin-left: 2px;
-	background-color: rgba( 0,0,0,0.4);
-	padding: 2px;
+
+	padding: 3px;
+	
+  	                       
+
+	background-color: #80808080;
+
+	wash-color: #cccccc;
 }
 
 .sb-meta__button-panel__btn:hover,
@@ -369,25 +414,12 @@ Button.sb-row__cell:hover {
 	height: 0px;
 }
 
-
-            
-                 
-
-	                   
- 
-            
-
                
  #id-sb-meta__musickit{
 
 	flow-children: right;
-
-	horizontal-align: right;
-
-	vertical-align: top;
-	position: 0px 44px 0px;
-
-	margin-right: 40px;
+	horizontal-align: left;
+  	                    
 }
 
 #id-sb-meta__musickit Label{
@@ -422,42 +454,38 @@ Button.sb-row__cell:hover {
 
 	horizontal-align: right;
 	flow-children: left;
-
-	margin-right: 40px;
-
 	width:fit-children;
-
-	vertical-align: top;
 }
 
 
 #id-gametime__time{
 
-	font-size: 32px;
+	font-size: 18px;
 	font-weight: bold;
-
 	font-family: Stratum2 Bold Monodigit, 'Arial Unicode MS';
+	color: grey;
 
 	horizontal-align: center;
 	vertical-align: bottom;
-	color: grey;
+
 	-s2-mix-blend-mode: SRGBadditive;
 	text-align: center;
-	letter-spacing: 0px;
+	letter-spacing: 0.2px;
 
 	max-width: 100px;
-	height: 40px;
+  	             
+	margin-left: 10px;
 	text-overflow: shrink;
 
 }
 
 #id-gametime__desc{
 
-	font-size: 32px;
+	font-size: 18px;
 	color: grey;
 	-s2-mix-blend-mode: SRGBadditive;
 	
-	margin-right: 10px;
+  	                   
 
 	font-weight: bold;
 
@@ -465,7 +493,7 @@ Button.sb-row__cell:hover {
 	                                  
 
 	max-width: 150px;
-	height: 40px;
+  	             
 	text-overflow: shrink;
 }
 
@@ -497,6 +525,11 @@ Button.sb-row__cell:hover {
 #players-table-ANY {
 
 	min-height: 120px;                       
+}
+
+.cooperative #players-table-ANY
+{
+	min-height: 48px;                       
 }
 
 #players-table-CT,
@@ -544,7 +577,7 @@ Button.sb-row__cell:hover {
 
 .sb-row {
 
-	width: fit-children;
+	width: sb-row-width;
 	flow-children: right;
 
 	horizontal-align: left;
@@ -556,6 +589,12 @@ Button.sb-row__cell:hover {
 
 
 }
+
+.sb-row.muted .sb-row__cell{
+	wash-color: #ff0000a0;
+}
+
+
 
 .sb-row--transition {
 
@@ -579,7 +618,7 @@ Button.sb-row__cell:hover {
 	transition-duration: 0.1s;
 	transition-timing-function: ease-in-out;
 
-	width: 235px;
+  	             
 
 	flow-children: right;
 }
@@ -630,13 +669,13 @@ background-color: rgba(255, 238, 0, 0.07);
 
 	vertical-align: middle;
 
-	width: 40px;
+	width: 45px;
 
 	background-color: cell-background-light;
 }
 
 .sb-row__cell Label {
-	font-size: 18px;
+	font-size: 16px;
 
 	margin-right: 6px;
 	margin-left: 6px;
@@ -701,20 +740,16 @@ background-color: rgba(255, 238, 0, 0.07);
 .sb-row__cell--rank,
 .sb-row__cell--avatar,
 .sb-row__cell--name,
-.sb-row__cell--flair,
-.sb-row__cell--kills,
-.sb-row__cell--deaths,
-.sb-row__cell--kdr,
-.sb-row__cell--utilitydamage,
-.sb-row__cell--score,
+.sb-row__cell--flair
 {
 	background-color: cell-background-dark;
 }
 
-.sb-row__cell--score
+.sb-row__cell--dark
 {
 	background-color: cell-background-dark;
 }
+
 
 
 .sb-row__cell--ping {
@@ -808,19 +843,28 @@ Label.sb-row__cell--ping__label--bot {
 }
 
 .sb-row__cell--avatar__muted{
+	visibility: collapse;
+
 	width: 80%;
 	height: 80%;
 	vertical-align: center;
 	horizontal-align: center;
 	opacity: 1;
-	background-color: #80808080;
+	background-color: #808080f0;
 
-	img-shadow:1px 1px 1px 1.0 #000000ff;
+  	                                     
+}
+
+
+.muted .sb-row__cell--avatar__muted{
+
+	visibility: visible;
+
 
 }
 
 .sb-row__cell--name {
-	width: 400px;
+	width: fill-parent-flow(1);
 	flow-children: left;
 }
 
@@ -885,7 +929,7 @@ Label.sb-row__cell--ping__label--bot {
                                                                      
 
 .sb-row__cell--money {
-	width: 70px;
+	width: 64px;	
 }
 
 #id-sb-row__cell--money__label
@@ -894,12 +938,14 @@ Label.sb-row__cell--ping__label--bot {
 	width: 100%;
 }
 
-.sb-row__cell--kills {
+.sb-row__cell--kills,
+.sb-row__cell--deaths,
+.sb-row__cell--assists,
+.sb-row__cell--enemiesflashed {
 
+	width: 35px;
 }	
 
-.sb-row__cell--deaths {
-}
 
 .sb-row__cell--mvps {
 	                           
@@ -908,7 +954,7 @@ Label.sb-row__cell--ping__label--bot {
 
 	                                     
 
-	width: 45px;
+	width: 46px;
 }	
 
 .sb-row__cell--mvps__star {
@@ -932,38 +978,48 @@ Label.sb-row__cell--mvps__count {
 }
 
 .sb-row__cell--score {
-	width: 52px;
+
+
 }	
 
 .sb-row__cell--hsp {
-	width: 45px;
+
 }	
 
 .sb-row__cell--kdr {
-	width: 55px;
+
+	width: 50px;
 }
 
 .sb-row__cell--adr {
+
+
+}	
+
+
+.sb-row__cell--damage {
+
 	width: 50px;
 }	
 
 .sb-row__cell--utilitydamage {
-	width: 45px;
+
+
 }	
 
-.sb-row__cell--enemiesflashed {
-}
+
 
 .sb-row--labels {
 
+	width: sb-row-width;
 	flow-children: right;
-	padding-left: 10px;
 }
 
 
 .sb-row--labels .sb-row__set {
 
 	padding-left: 0px;
+	flow-children: right;
 }
 
 
@@ -1007,10 +1063,11 @@ Label.sb-row__cell--mvps__count {
 	wash-color: #ffffff00;
 }
 
-:not(.eom-scoreboard) .sb-player-status-dead,  {
+:not(.eom-scoreboard) .sb-player-status-dead {
 	opacity: 0.5;
 	wash-color: #999;
 }
+
 
 :not(.eom-scoreboard) .sb-player-status-dead .sb-row__cell,
 :not(.eom-scoreboard) .sb-row__cell--label {
@@ -1582,12 +1639,14 @@ Label.sb-row__cell--mvps__count {
 }
 
 .armrace-scoreboard .time_container,
-.eom-scoreboard .time_container,
-.eom-scoreboard .sb-row__cell--status,
 .eom-scoreboard #id-sb-mouse-instructions,
 .eom-scoreboard #id-sb-meta__musickit,
 .eom-scoreboard .sb-row__cell--money Label,
 .eom-scoreboard .sb-team__info__number,
+.eom-scoreboard .sb-team--Spectator,
+.eom-scoreboard #id-sb-footer-server-website,
+.eom-scoreboard #id-sb-meta__blockugc,
+.eom-scoreboard #id-sb-meta__mutevoice,
  {
 	visibility: collapse;
  }
@@ -1599,16 +1658,10 @@ Label.sb-row__cell--mvps__count {
  }
 
 
- .eom-scoreboard .sb-row__cell--money:not(.sb-row__cell--label)
-{
-	background-color: cell-background-dark;
-}
-
  .eom-scoreboard .sb-meta,
  {
 	 height: fit-children;
-
-	 margin-bottom: 10px;
+	 margin-bottom: 0px;
 	                         
  }
 
@@ -1633,4 +1686,114 @@ Label.sb-row__cell--mvps__count {
 .eom-scoreboard .sb-row--labels {
 
 	                               
+}
+
+.sb-coop-mission-info
+{
+	flow-children: down;
+	width: 100%;
+	height: fit-children;
+	margin: 12px;
+}
+
+   
+	                                                            
+	                                                                                           
+  
+.coop-mission-instructions 
+{ 
+	visibility: collapse; 
+	horizontal-align: center;
+}
+.show-mission-desc .coop-mission-instructions { visibility: visible; }
+
+.coop-mission-stats { visibility: collapse; }
+.show-mission-stats .coop-mission-stats { visibility: visible; }
+
+                                                                                                                      
+.stats-header-previous { width: 100%; visibility: visible; }
+.coop-finalscore .stats-header-previous { visibility: collapse; }
+
+.stats-header-endgame { width: 100%; visibility: collapse; }
+.coop-finalscore .stats-header-endgame { visibility: visible; }
+
+.coop-mission-stats
+{
+	width: 100%;
+	height: fit-children;
+	flow-children: down;
+}
+
+.coop-mission-stats-left
+{
+	width: 60%;
+	height: fit-children;
+	flow-children: down;
+	horizontal-align: left;
+	margin-right: 12px;
+}
+
+.coop-mission-stats-right
+{
+	width: 40%;
+	height: fit-children;
+	flow-children: down;
+	horizontal-align: right;
+}
+
+.sb-coop-stats__row
+{
+	width: 100%;
+	height: 24px;
+	flow-children: right;
+}
+
+.sb-coop-stat-name
+{
+	horizontal-align: left;
+	width: 60%;
+}
+
+.sb-coop-stat-value
+{
+	text-align: right;
+	padding-right: 20px;
+	width: 20%; 
+}
+
+.sb-coop-stats__total .sb-coop-stat-score,
+.sb-coop-stats__total .sb-coop-stat-name
+{
+	font-weight: bold;
+	text-transform: uppercase;
+	width: 50%;
+
+}
+
+.sb-coop-stat-score
+{
+	width: 20%; 
+	text-align: right;
+	padding-right: 8px;
+}
+
+
+.evenrow
+{
+	background-color: rgba(48, 48, 48, 0.5);
+}
+
+.oddrow
+{
+	background-color: rgba(1, 49, 65, 0.5);
+}
+
+.round-end-report-visible .sb-main {
+
+	transform: translateY( 150px);
+}
+
+.round-end-report-visible .eom-scoreboard .sb-main {
+
+	transform: translateY( 0px);
 }

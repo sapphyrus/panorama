@@ -21,17 +21,19 @@ var EOM_Voting = (function () {
 		}
 
 		       
-		var oTime = GameStateAPI.GetTimeDataJSO();
+		var oTime = MockAdapter.GetTimeDataJSO();
 
 		if ( !oTime )
 		{ 
 			return false;
 		}
+
+		$.RegisterForUnhandledEvent( 'EndOfMatch_Shutdown', _CancelUpdateJob );
 		
 		_m_pauseBeforeEnd = oTime[ "time" ];
 
 		                        
-		var oMatchEndVoteData = _m_cP.NextMatchVotingData;
+		var oMatchEndVoteData = MockAdapter.NextMatchVotingData( _m_cP );
 
 		$.DispatchEvent( 'PlaySoundEffect', 'UIPanorama.submenu_leveloptions_slidein', 'MOUSE' );
 
@@ -164,12 +166,13 @@ var EOM_Voting = (function () {
 
 	var _UpdateVotes = function() {
 
+		_m_updateJob = undefined;
 		        
 
 		if ( !_m_cP || !_m_cP.IsValid() )
 			return;
 		
-		var oMatchEndVoteData = _m_cP.NextMatchVotingData;
+		var oMatchEndVoteData = MockAdapter.NextMatchVotingData( _m_cP );
 
 		if ( !oMatchEndVoteData )
 		{	
@@ -329,9 +332,14 @@ var EOM_Voting = (function () {
   
   
 
-	function _Start() 
+	function _Start()  
 	{
-			
+		if ( MockAdapter.GetMockData() && !MockAdapter.GetMockData().includes( 'VOTING' ) )
+		{
+			_End();
+			return;
+		}
+
 		if ( _DisplayMe() )
 		{
 			EndOfMatch.SwitchToPanel( 'eom-voting' );
@@ -347,7 +355,19 @@ var EOM_Voting = (function () {
 
 	function _End() 
 	{
-		$.DispatchEvent( 'EndOfMatch_ShowNext' );
+		_CancelUpdateJob();
+		
+		EndOfMatch.ShowNextPanel();
+	}
+
+	function _CancelUpdateJob ()
+	{
+		if ( _m_updateJob != undefined )
+		{
+			$.CancelScheduled( _m_updateJob );
+			_m_updateJob = undefined;
+		}
+
 	}
 
 

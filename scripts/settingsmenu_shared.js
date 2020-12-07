@@ -3,6 +3,7 @@
 
 var SettingsMenuShared = ( function () {
 
+
 	var _ResetControlsRecursive = function( panel )
 	{
 		if ( panel == null )
@@ -99,7 +100,7 @@ var SettingsMenuShared = ( function () {
 			function() {
 				resetCall();
 			},
-			'Return',
+			'#settings_return',
 			function() {
 			},
 			'dim'
@@ -115,7 +116,7 @@ var SettingsMenuShared = ( function () {
 			function() {
 				discardCall();
 			},
-			'Return',
+			'#settings_return',
 			function() {
 			},
 			'dim'
@@ -124,11 +125,11 @@ var SettingsMenuShared = ( function () {
 
 	var _ScrollToId = function ( locationId )
 	{
-		var elLocationPanel = $.GetContextPanel().FindChildInLayoutFile( locationId );
+		var elLocationPanel = $.GetContextPanel().FindChildTraverse( locationId );
 
 		if ( elLocationPanel != null )
 		{
-			elLocationPanel.ScrollParentToMakePanelFit(2, false);
+			elLocationPanel.ScrollParentToMakePanelFit(3, false);
 			elLocationPanel.AddClass('Highlight');
 
 			var kfs = elLocationPanel.CreateCopyOfCSSKeyframes( 'settings-highlight' );
@@ -217,6 +218,18 @@ var SettingsMenuShared = ( function () {
 		UiToolkitAPI.ShowCustomLayoutPopup('', 'file://{resources}/layout/popups/popup_hud_edge_positions.xml');
 	}
 
+	var _ChangeBackground = function( delta )
+	{
+		let elBkg = $( "#XhairBkg" );
+		if ( elBkg )
+		{
+			let nBkgIdx = elBkg.GetAttributeInt( "bkg-id", 0 );
+			let arrBkgs = [ "bkg-dust2", "bkg-aztec", "bkg-mirage", "bkg-office" ];
+			nBkgIdx = ( arrBkgs.length + nBkgIdx + delta ) % arrBkgs.length;
+			elBkg.SwitchClass( "bkg-style", arrBkgs[ nBkgIdx ] );
+			elBkg.SetAttributeInt( "bkg-id", nBkgIdx );
+		}
+	}
 
 	return {
 
@@ -232,7 +245,8 @@ var SettingsMenuShared = ( function () {
 		VideoSettingsDiscardChanges		: _VideoSettingsDiscardChanges,
 		VideoSettingsApplyChanges		: _VideoSettingsApplyChanges,
 		NewTabOpened					: _NewTabOpened,
-		ShowHudEdgePositions			: _ShowHudEdgePositions
+		ShowHudEdgePositions			: _ShowHudEdgePositions,
+        ChangeBackground 				: _ChangeBackground,
 	};
 
 } )();

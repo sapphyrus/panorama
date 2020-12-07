@@ -10,6 +10,12 @@ var NewsPanel = (function () {
 	var _OnRssFeedReceived = function( feed )
 	{
 		                                          
+
+		if( $.GetContextPanel().BHasClass( 'news-panel--hide-news-panel' ) )
+		{
+			return;
+		};
+		
 		var elLister = $.GetContextPanel().FindChildInLayoutFile( 'NewsPanelLister' );
 
 		if ( elLister === undefined || elLister === null || !feed )
@@ -17,14 +23,46 @@ var NewsPanel = (function () {
 
 		elLister.RemoveAndDeleteChildren();
 
+		                                     
+		var foundFirstNewsItem = false;
+
 		feed[ 'items' ].forEach( function( item, i )
 		{
 			var elEntry = $.CreatePanel( 'Panel', elLister, 'NewEntry' + i, {
 				acceptsinput: true
 			} );
 
+			var lastReadItem = GameInterfaceAPI.GetSettingString( 'ui_news_last_read_link' );
+
+			                                                           
+			if ( !foundFirstNewsItem && !item.categories.includes( 'Minor' ) )
+			{
+				foundFirstNewsItem = true;
+
+				                                             
+				elEntry.AddClass( 'new' );
+
+				if ( item.link != lastReadItem )
+				{
+					UiToolkitAPI.ShowCustomLayoutPopupParameters( '', 'file://{resources}/layout/popups/popup_news.xml',
+						'date=' + item.date + "&" + 
+						'title=' + item.title + "&" + 
+						'link=' + item.link );
+				}
+
+				GameInterfaceAPI.SetSettingString( 'ui_news_last_read_link', item.link );
+			}
+
 			elEntry.BLoadLayoutSnippet( 'news-full-entry' );
-			elEntry.FindChildInLayoutFile( 'NewsHeaderImage' ).SetImage( item.imageUrl );
+			var elImage = elEntry.FindChildInLayoutFile( 'NewsHeaderImage' );
+			if ( item.imageUrl )
+			{
+				elImage.SetImage( item.imageUrl );
+			}
+			else
+			{
+				elImage.SetImage( "file://{images}/store/default-news.png" );
+			}
 
 			var elEntryInfo = $.CreatePanel( 'Panel', elEntry, 'NewsInfo' + i );
 			elEntryInfo.BLoadLayoutSnippet( 'news-info' );
@@ -36,7 +74,18 @@ var NewsPanel = (function () {
 			         
 			elEntry.FindChildInLayoutFile( 'NewsEntryBlurTarget' ).AddBlurPanel( elEntryInfo );
 
-			elEntry.SetPanelEvent( "onactivate", SteamOverlayAPI.OpenURL.bind( SteamOverlayAPI, item.link ) );
+			elEntry.SetPanelEvent( "onactivate", function( link, elEntry, clearNew )
+			{
+				SteamOverlayAPI.OpenURL( link );
+
+				if ( clearNew )
+				{
+					GameInterfaceAPI.SetSettingString( 'ui_news_last_read_link', link );
+					elEntry.RemoveClass( 'new' );
+				}
+
+			}.bind( SteamOverlayAPI, item.link, elEntry, i == 0 ) );
+		
 		} );
 	};
 
@@ -47,7 +96,8 @@ var NewsPanel = (function () {
 })();
 
 
-(function () {
+( function()
+{
 	NewsPanel.GetRssFeed();
 	$.RegisterForUnhandledEvent( "PanoramaComponent_Blog_RSSFeedReceived", NewsPanel.OnRssFeedReceived );
 })();

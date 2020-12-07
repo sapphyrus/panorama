@@ -2,6 +2,7 @@
 
 var SettingsMenuGameSettings = ( function() {
 
+
     var _InitSteamClanTagsPanel = function () {   
         var clanTagDropdown = $('#ClanTagsEnum');
         clanTagDropdown.RemoveAllOptions();
@@ -31,11 +32,43 @@ var SettingsMenuGameSettings = ( function() {
         }
 
         clanTagDropdown.RefreshDisplay();
-    };
+	};
+
+	var _OnCrosshairStyleChange = function()
+	{
+		                                            
+		let nStyle = parseInt( GameInterfaceAPI.GetSettingString( 'cl_crosshairstyle' ) );
+
+		let bEnableControls = nStyle !== 0 && nStyle !== 1;
+		$( "#XhairLength" ).visible = bEnableControls;
+		$( "#XhairThickness" ).visible = bEnableControls;
+		$( "#XhairGap" ).visible = bEnableControls;
+		$( "#XhairOutline" ).visible = bEnableControls;
+		$( "#XhairColorRed" ).visible = bEnableControls;
+		$( "#XhairColorGreen" ).visible = bEnableControls;
+		$( "#XhairColorBlue" ).visible = bEnableControls;
+		$( "#XhairAlpha" ).visible = bEnableControls;
+		$( "#XhairCenterDot" ).visible = bEnableControls;
+		$( "#XhairTStyle" ).visible = bEnableControls;
+
+		let bEnableSplitControls = nStyle === 2;
+		$( "#XhairSlitDist" ).visible = bEnableSplitControls;
+		$( "#XhairSplitInnerAlpha" ).visible = bEnableSplitControls;
+		$( "#XhairSplitOuterAlpha" ).visible = bEnableSplitControls;
+		$( "#XhairSplitRatio" ).visible = bEnableSplitControls;
+
+		$( "#XhairFixedGap" ).visible = (nStyle === 1);
+
+		$( "#CrosshairEditorPreview" ).SetHasClass( "dynamic-crosshair", nStyle === 0 || nStyle === 2 || nStyle === 3 ); 
+
+		let obsCrosshairs = parseInt( GameInterfaceAPI.GetSettingString( 'cl_show_observer_crosshair' ) );
+		$( "#XhairObservedBotCrosshair" ).visible = (obsCrosshairs === 2);
+
+}
 
     return {
-
-        InitSteamClanTagsPanel : _InitSteamClanTagsPanel
+        InitSteamClanTagsPanel : _InitSteamClanTagsPanel,
+        OnCrosshairStyleChange : _OnCrosshairStyleChange
     };
 
 })();
@@ -43,5 +76,8 @@ var SettingsMenuGameSettings = ( function() {
               
 (function ()
 {
-    SettingsMenuGameSettings.InitSteamClanTagsPanel();
+	SettingsMenuGameSettings.InitSteamClanTagsPanel();
+	SettingsMenuGameSettings.OnCrosshairStyleChange();
+	SettingsMenuShared.ChangeBackground( 0 );
+
 })();

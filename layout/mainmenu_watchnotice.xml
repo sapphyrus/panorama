@@ -8,6 +8,7 @@
 	</styles>
 
 	<scripts>
+		<include src="file://{resources}/scripts/common/eventutil.js" />
 		<include src="file://{resources}/scripts/mainmenu_watchnotice.js" />
 		<include src="file://{resources}/scripts/watch_events_debug.js" />
 		<include src="file://{resources}/scripts/watchmatchtile.js" />
@@ -31,7 +32,7 @@
 							</TooltipPanel>
 						</Panel>
 
-						<Panel id="id-watchnotice__matches-carousel-container" class="watchnotice__matches-carousel-container">
+						<Panel id="id-watchnotice__matches-carousel-container" class="watchnotice__matches-carousel-container" allowfocus='false'>
 						                                   
 						</Panel>
 						
@@ -75,7 +76,7 @@
 	</snippets>
 
 
-	<Panel class="news-panel-watchnotice news-panel hidden" hittest="true" useglobalcontext="true">                                  
+	<Panel class="news-panel-watchnotice news-panel hidden MainMenuModeOnly" hittest="true" useglobalcontext="true">                                  
 		
 		<Panel class="news-panel-navbar">
 			<Label html="false" text="#SFUI_MainMenu_WatchNotice_Title" />

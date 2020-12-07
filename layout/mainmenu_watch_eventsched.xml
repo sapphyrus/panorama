@@ -6,7 +6,8 @@
 		<include src="file://{resources}/styles/mainmenu_watch_eventsched.css" />
 		
 	</styles>	
-	<scripts>		
+	<scripts>
+		<include src="file://{resources}/scripts/common/eventutil.js" />
 		<include src="file://{resources}/scripts/mainmenu_watch_eventsched.js" />
 		<include src="file://{resources}/scripts/common/formattext.js" />
 		<include src="file://{resources}/scripts/watch_events_debug.js" />
@@ -98,6 +99,13 @@
 			</Panel>
 		</snippet>
 
+		<snippet name="snippet_eventsched_year_container">
+			<Panel class="eventsched__year-container">
+				<Label id="id-eventsched__year-container__header" class="eventsched__year-container__header stratum-font"/>
+				<Panel id="id-eventsched__year-container__eventsched" clas="eventsched__year-container__eventsched"/>
+					                                                             
+			</Panel>
+		</snippet>
 
 		<snippet name="snippet_eventsched_month_container">
 			<Panel class="eventsched__month-container">

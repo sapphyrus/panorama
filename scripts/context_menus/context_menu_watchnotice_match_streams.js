@@ -2,8 +2,10 @@
 
 var ContextMenuWatchNoticeMatchStream = (function () {
 
-	var _m_oStreams = undefined;
+	var _m_arrStreams = undefined;
 	var _m_cP = $.GetContextPanel();
+	var _m_myCountryCode = undefined;
+	var _m_oPriorityMap = {};
 
 
 	function _Init()
@@ -19,16 +21,46 @@ var ContextMenuWatchNoticeMatchStream = (function () {
 	}
 
 
-	function _StreamCompareFunction ( a, b )
+
+
+	                                                        
+	function _SortStreams ( arrStreams )
 	{
-		return a['iso'] > b['iso'];
+		_m_oPriorityMap = {};
+
+		for ( var i in arrStreams )
+		{
+			var cc = arrStreams[ i ][ 'iso' ].toLowerCase();
+
+			if ( !( cc in _m_oPriorityMap  ) )
+			{
+				if ( cc == _m_myCountryCode )
+				{
+					_m_oPriorityMap[ cc ] = 0;
+				}
+				else
+				{
+					_m_oPriorityMap[ cc ] = Object.keys( _m_oPriorityMap ).length + 1;
+				}
+			}
+		}
+
+		function _StreamCompareFunction ( a, b )
+		{
+			var alc = a[ 'iso' ].toLowerCase();
+			var blc = b[ 'iso' ].toLowerCase();
+	
+			return _m_oPriorityMap[ alc ] - _m_oPriorityMap[ blc ];
+		}
+
+		arrStreams.sort( _StreamCompareFunction );
 	}
 
 	function _RequestMatchString_Received( matchString )
 	{
-		if ( _m_oStreams != undefined )
+		if ( _m_arrStreams != undefined )
 			return;
-		
+			
 		var oMatch = JSON.parse( matchString );
 		
 		if ( oMatch == undefined )
@@ -37,22 +69,24 @@ var ContextMenuWatchNoticeMatchStream = (function () {
 			return;		
 		}
 
-		_m_oStreams = oMatch[ 'streams' ];
+		_m_arrStreams = oMatch[ 'streams' ];
 
-		if ( _m_oStreams.length == 0 )
+		if ( _m_arrStreams.length == 0 )
 		{
 
 			var elNoStreamLabel = $.GetContextPanel().FindChildTraverse( "id-watchnotice__event__match__no-stream" );
 			elNoStreamLabel.RemoveClass( 'hidden' );
 		}
 
-		_m_oStreams.sort( _StreamCompareFunction );
+		_m_myCountryCode = MyPersonaAPI.GetMyCountryCode().toLowerCase();
+
+		_SortStreams( _m_arrStreams );
 		
-		for ( var jdx in _m_oStreams )
+		for ( var jdx in _m_arrStreams )
 		{
 			var oStream = oMatch[ 'streams' ][ jdx ];
 
-			var countryCode = oStream[ 'iso' ].replace( "world", "US" );
+			var countryCode = oStream[ 'iso' ].replace( "world", "us" );
 
 			                           
 			var elStreamContainer = $.GetContextPanel().FindChildTraverse( 'id-watchnotice__event__match__stream-container' );
